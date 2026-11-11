@@ -1,0 +1,2247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root { color-scheme: light dark; }
+  body { margin: 0; font: 14px system-ui, -apple-system, "Segoe UI", sans-serif; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<title>Wayfare Booking Engine</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --band:#0A2231; --band-2:#06161F; --band-text:#E8F0F3; --band-dim:#8FA9B6; --band-line:#1E3D50;
+  --paper:#EFF3F5; --surface:#FFFFFF; --surface-2:#F6F9FA; --sunk:#E9EFF1;
+  --line:#DBE4E8; --line-2:#C2D0D6;
+  --text:#0A2231; --text-2:#4B6270; --text-3:#7C919D;
+  --accent:#FF5A1F; --accent-2:#E24A11; --on-accent:#FFFFFF; --accent-soft:#FFEBE0; --accent-line:#FFC9AE;
+  --b2b:#0E7C7B; --b2b-soft:#DFF1F0; --b2b-line:#9ED2D0;
+  --good:#12704C; --good-soft:#E2F2EA; --warn:#8F5B06; --warn-soft:#FAEFD9; --bad:#A72016; --bad-soft:#FAE7E4;
+  --shadow-1:0 1px 2px rgba(10,34,49,.06), 0 2px 8px rgba(10,34,49,.05);
+  --shadow-2:0 6px 14px rgba(10,34,49,.09), 0 18px 40px rgba(10,34,49,.10);
+  --r:10px; --r-lg:16px;
+  --sans:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  --disp:"Archivo","IBM Plex Sans",-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --band:#050F16; --band-2:#020A0F; --band-text:#E4EEF2; --band-dim:#7D97A4; --band-line:#17313F;
+  --paper:#071219; --surface:#0D202B; --surface-2:#122835; --sunk:#0A1C26;
+  --line:#1C3746; --line-2:#2A4D60;
+  --text:#E4EEF2; --text-2:#9DB4C0; --text-3:#728C99;
+  --accent:#FF7A47; --accent-2:#FF9366; --on-accent:#10232E; --accent-soft:#37190E; --accent-line:#6B3018;
+  --b2b:#3FB5B2; --b2b-soft:#0C2E2E; --b2b-line:#1C5453;
+  --good:#4FBE8D; --good-soft:#0C2A1F; --warn:#D9A648; --warn-soft:#2D2108; --bad:#F08076; --bad-soft:#331410;
+  --shadow-1:0 1px 2px rgba(0,0,0,.4); --shadow-2:0 8px 24px rgba(0,0,0,.5);
+}}
+:root[data-theme="dark"]{
+  --band:#050F16; --band-2:#020A0F; --band-text:#E4EEF2; --band-dim:#7D97A4; --band-line:#17313F;
+  --paper:#071219; --surface:#0D202B; --surface-2:#122835; --sunk:#0A1C26;
+  --line:#1C3746; --line-2:#2A4D60;
+  --text:#E4EEF2; --text-2:#9DB4C0; --text-3:#728C99;
+  --accent:#FF7A47; --accent-2:#FF9366; --on-accent:#10232E; --accent-soft:#37190E; --accent-line:#6B3018;
+  --b2b:#3FB5B2; --b2b-soft:#0C2E2E; --b2b-line:#1C5453;
+  --good:#4FBE8D; --good-soft:#0C2A1F; --warn:#D9A648; --warn-soft:#2D2108; --bad:#F08076; --bad-soft:#331410;
+  --shadow-1:0 1px 2px rgba(0,0,0,.4); --shadow-2:0 8px 24px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--disp);font-weight:600;margin:0;letter-spacing:-.018em;text-wrap:balance}
+p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:none;padding:0}
+a{color:var(--accent);text-decoration:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.num{font-variant-numeric:tabular-nums}
+.wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+.eyebrow{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--text-3)}
+.muted{color:var(--text-2)} .dim{color:var(--text-3)}
+.row{display:flex;align-items:center;gap:10px}
+.between{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.grow{flex:1;min-width:0}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+<style>
+/* chrome */
+.chrome{background:var(--band);color:var(--band-text);border-bottom:1px solid var(--band-line);position:sticky;top:0;z-index:40}
+.chrome .wrap{display:flex;align-items:center;gap:20px;height:60px}
+.brand{display:flex;align-items:center;gap:10px}
+.mark{width:28px;height:28px;border-radius:7px;background:var(--accent);display:grid;place-items:center;flex:none}
+.mark svg{width:17px;height:17px;fill:var(--on-accent)}
+.brand b{font-family:var(--disp);font-size:17px;font-weight:700;letter-spacing:-.03em}
+.tagchip{font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--band-dim);border:1px solid var(--band-line);border-radius:99px;padding:3px 8px;white-space:nowrap}
+.modes{display:flex;background:rgba(255,255,255,.06);border:1px solid var(--band-line);border-radius:9px;padding:3px;gap:2px}
+.modes button{font-size:12.5px;font-weight:600;color:var(--band-dim);padding:6px 13px;border-radius:6px;white-space:nowrap;transition:.15s}
+.modes button:hover{color:var(--band-text)}
+.modes button[aria-pressed="true"]{background:var(--band-text);color:var(--band)}
+.modes button[aria-pressed="true"][data-mode="agent"]{background:var(--b2b);color:#fff}
+.chrome-r{margin-left:auto;display:flex;align-items:center;gap:8px}
+.ghost{border:1px solid var(--band-line);color:var(--band-dim);border-radius:8px;padding:6px 11px;font-size:12.5px;font-weight:600;transition:.15s}
+.ghost:hover{color:var(--band-text);border-color:var(--band-dim)}
+.avatar{width:30px;height:30px;border-radius:99px;background:linear-gradient(140deg,var(--accent),#B43C0F);display:grid;place-items:center;font-size:11px;font-weight:700;color:#fff;flex:none}
+/* tabs */
+.tabs{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:60px;z-index:30}
+.tabs .wrap{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+.tabs .wrap::-webkit-scrollbar{display:none}
+.tab{padding:13px 14px 11px;font-size:13.5px;font-weight:600;color:var(--text-2);border-bottom:2px solid transparent;white-space:nowrap;transition:.15s}
+.tab:hover{color:var(--text)}
+.tab[aria-selected="true"]{color:var(--text);border-bottom-color:var(--accent)}
+.tab[aria-selected="true"].b2b{border-bottom-color:var(--b2b)}
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border-radius:9px;padding:10px 18px;font-size:13.5px;font-weight:600;border:1px solid transparent;transition:.15s;white-space:nowrap}
+.btn-pri{background:var(--accent);color:var(--on-accent)}
+.btn-pri:hover{background:var(--accent-2)}
+.btn-b2b{background:var(--b2b);color:#fff}
+.btn-b2b:hover{filter:brightness(1.08)}
+.btn-out{border-color:var(--line-2);color:var(--text);background:var(--surface)}
+.btn-out:hover{border-color:var(--text-3);background:var(--surface-2)}
+.btn-sm{padding:7px 13px;font-size:12.5px;border-radius:8px}
+.btn-lg{padding:14px 26px;font-size:15px}
+.btn[disabled]{opacity:.5;pointer-events:none}
+/* chips / pills */
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;background:var(--sunk);color:var(--text-2);white-space:nowrap}
+.chip.good{background:var(--good-soft);color:var(--good)}
+.chip.warn{background:var(--warn-soft);color:var(--warn)}
+.chip.bad{background:var(--bad-soft);color:var(--bad)}
+.chip.acc{background:var(--accent-soft);color:var(--accent-2)}
+.chip.b2b{background:var(--b2b-soft);color:var(--b2b)}
+.chip.src{font-family:var(--mono);font-size:10px;letter-spacing:.03em;border:1px solid var(--line);background:transparent;color:var(--text-3)}
+.dot{width:6px;height:6px;border-radius:99px;background:currentColor;flex:none}
+/* hero band */
+.band{background:linear-gradient(170deg,var(--band) 0%,var(--band-2) 100%);color:var(--band-text);position:relative;overflow:hidden;padding:44px 0 92px}
+.band-art{position:absolute;inset:0;opacity:.5;pointer-events:none}
+.band-art svg{width:100%;height:100%}
+.band .wrap{position:relative}
+.band h1{font-size:clamp(28px,4vw,42px);line-height:1.08;font-weight:700;letter-spacing:-.035em;max-width:16ch}
+.band h1 em{font-style:normal;color:var(--accent)}
+.band-sub{color:var(--band-dim);max-width:56ch;margin-top:12px;font-size:15px}
+.band-stats{display:flex;flex-wrap:wrap;gap:28px;margin-top:24px}
+.band-stats div b{display:block;font-family:var(--disp);font-size:20px;font-weight:700;letter-spacing:-.02em}
+.band-stats div span{font-family:var(--mono);font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--band-dim)}
+/* search card */
+.searchcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-2);margin-top:-62px;position:relative;z-index:5;overflow:hidden}
+.seg{display:flex;gap:2px;padding:8px 10px 0;border-bottom:1px solid var(--line)}
+.seg button{display:flex;align-items:center;gap:7px;padding:10px 15px;font-size:13.5px;font-weight:600;color:var(--text-2);border-radius:8px 8px 0 0;border-bottom:2px solid transparent;transition:.15s}
+.seg button:hover{color:var(--text);background:var(--surface-2)}
+.seg button[aria-pressed="true"]{color:var(--text);border-bottom-color:var(--accent);background:var(--surface-2)}
+.seg svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7}
+.sform{padding:16px}
+.triptype{display:flex;gap:16px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.radio{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--text-2);cursor:pointer}
+.radio input{accent-color:var(--accent);width:14px;height:14px}
+.fields{display:grid;grid-template-columns:1.1fr 1.1fr .85fr .85fr 1fr auto;gap:8px;align-items:end}
+.field{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:8px 11px;min-width:0;transition:.15s}
+.field:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.field label{display:block;font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.11em;text-transform:uppercase;color:var(--text-3);margin-bottom:2px}
+.field select,.field input{width:100%;border:none;background:none;padding:0;font-size:15px;font-weight:600;letter-spacing:-.01em;outline:none}
+.field select{cursor:pointer;-webkit-appearance:none;appearance:none}
+.field .sub{font-size:11px;color:var(--text-3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.swap{align-self:center;width:30px;height:30px;border-radius:99px;border:1px solid var(--line-2);background:var(--surface);display:grid;place-items:center;margin:0 -16px;z-index:2;position:relative;transition:.15s}
+.swap:hover{border-color:var(--accent);color:var(--accent);transform:rotate(180deg)}
+.swap svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8}
+.sform .go{height:100%;min-height:58px}
+@media(max-width:1000px){.fields{grid-template-columns:1fr 1fr;}.sform .go{grid-column:1/-1;min-height:46px}}
+@media(max-width:560px){.fields{grid-template-columns:1fr}.swap{display:none}}
+</style>
+<style>
+/* layout blocks */
+main{padding-bottom:64px}
+.sec{padding:40px 0 0}
+.sec-h{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:18px;flex-wrap:wrap}
+.sec-h h2{font-size:23px;letter-spacing:-.025em}
+.sec-h p{color:var(--text-2);margin-top:4px;max-width:62ch}
+.split{display:grid;grid-template-columns:262px 1fr;gap:20px;align-items:start}
+@media(max-width:900px){.split{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-1)}
+.panel-h{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.panel-h h3{font-size:14.5px;letter-spacing:-.01em}
+.panel-b{padding:16px}
+.stack{display:flex;flex-direction:column;gap:12px}
+.rail{position:sticky;top:116px}
+@media(max-width:900px){.rail{position:static}}
+/* filters */
+.fgrp{padding:14px 16px;border-bottom:1px solid var(--line)}
+.fgrp:last-child{border-bottom:none}
+.fgrp > .eyebrow{display:block;margin-bottom:9px}
+.check{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:13px;cursor:pointer;color:var(--text-2)}
+.check:hover{color:var(--text)}
+.check input{accent-color:var(--accent);width:14px;height:14px;flex:none}
+.check .c{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--text-3)}
+.pillrow{display:flex;flex-wrap:wrap;gap:6px}
+.pill{border:1px solid var(--line);background:var(--surface);border-radius:7px;padding:6px 10px;font-size:12px;font-weight:600;color:var(--text-2);transition:.15s}
+.pill:hover{border-color:var(--line-2);color:var(--text)}
+.pill[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent-2)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+/* sortbar */
+.sortbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.sortbar .eyebrow{margin-right:2px}
+/* flight card */
+.fcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-1);overflow:hidden;transition:.15s}
+.fcard:hover{border-color:var(--line-2);box-shadow:var(--shadow-2)}
+.fcard.open{border-color:var(--accent-line)}
+.fcard-main{display:grid;grid-template-columns:150px 1fr 176px;gap:18px;padding:16px;align-items:center}
+@media(max-width:760px){.fcard-main{grid-template-columns:1fr;gap:14px}}
+.al{display:flex;align-items:center;gap:9px;min-width:0}
+.al-mark{width:32px;height:32px;border-radius:7px;display:grid;place-items:center;font-family:var(--mono);font-size:11.5px;font-weight:600;color:#fff;flex:none;letter-spacing:.02em}
+.al-name{font-size:12.5px;font-weight:600;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.al-no{font-family:var(--mono);font-size:10.5px;color:var(--text-3)}
+.route{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center}
+.tpoint b{display:block;font-family:var(--disp);font-size:20px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.1}
+.tpoint span{font-family:var(--mono);font-size:10.5px;color:var(--text-3);letter-spacing:.04em}
+.tpoint.r{text-align:right}
+.tpoint sup{color:var(--accent);font-size:10px;font-weight:700;margin-left:1px}
+.line{position:relative;text-align:center}
+.line .dur{font-size:11px;color:var(--text-2);font-weight:600;font-variant-numeric:tabular-nums}
+.line .bar{height:1px;background:var(--line-2);margin:6px 0;position:relative}
+.line .bar::before,.line .bar::after{content:"";position:absolute;top:50%;width:5px;height:5px;border-radius:99px;background:var(--line-2);transform:translateY(-50%)}
+.line .bar::before{left:0} .line .bar::after{right:0}
+.line .stop{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:7px;height:7px;border-radius:99px;background:var(--surface);border:1.5px solid var(--accent)}
+.line .stops{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3)}
+.line .stops.ns{color:var(--good);font-weight:600}
+.fprice{text-align:right}
+@media(max-width:760px){.fprice{text-align:left;display:flex;align-items:flex-end;justify-content:space-between;gap:12px;border-top:1px dashed var(--line);padding-top:12px}}
+.fprice .amt{font-family:var(--disp);font-size:24px;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1}
+.fprice .per{font-size:10.5px;color:var(--text-3);margin-top:3px}
+.fprice .btn{margin-top:9px}
+.fmeta{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 14px;align-items:center}
+.fexp{border-top:1px solid var(--line);background:var(--surface-2);padding:16px;display:none}
+.fcard.open .fexp{display:block}
+.fares{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.fare{border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:12px;display:flex;flex-direction:column;gap:9px;transition:.15s}
+.fare:hover{border-color:var(--line-2)}
+.fare.best{border-color:var(--accent-line);background:var(--surface)}
+.fare-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.fare-h b{font-size:13px;font-weight:700;letter-spacing:-.01em}
+.fare-h .p{font-family:var(--disp);font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.fare ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:5px}
+.fare li{font-size:11.5px;color:var(--text-2);display:flex;align-items:center;gap:6px}
+.fare li svg{width:12px;height:12px;flex:none;stroke-width:2.2;fill:none}
+.fare li.y svg{stroke:var(--good)} .fare li.n svg{stroke:var(--text-3)} .fare li.n{color:var(--text-3)}
+/* tables */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.11em;text-transform:uppercase;color:var(--text-3);text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--surface-2)}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+/* key/value */
+.kv{display:flex;flex-direction:column;gap:8px}
+.kv div{display:flex;align-items:baseline;justify-content:space-between;gap:16px;font-size:13px}
+.kv div span{color:var(--text-2)}
+.kv div b{font-weight:600;font-variant-numeric:tabular-nums}
+.kv div.tot{border-top:1px solid var(--line);padding-top:10px;margin-top:2px}
+.kv div.tot span{color:var(--text);font-weight:600}
+.kv div.tot b{font-family:var(--disp);font-size:20px;letter-spacing:-.025em}
+.kv div.cr b{color:var(--b2b)}
+</style>
+<style>
+/* destination plate */
+.plate{position:relative;aspect-ratio:16/10;overflow:hidden;background:linear-gradient(180deg,var(--p1) 0%,var(--p2) 62%,var(--p3) 100%)}
+.plate img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.plate .scrim{position:absolute;inset:0;background:linear-gradient(to top,rgba(4,16,24,.68) 0%,rgba(4,16,24,.16) 38%,transparent 62%)}
+.band-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 38%}
+.band-scrim{position:absolute;inset:0;background:linear-gradient(96deg,var(--band) 20%,rgba(7,22,31,.86) 52%,rgba(7,22,31,.58) 100%)}
+.pcard:hover .plate img{transform:scale(1.04)}
+.plate img{transition:transform .6s cubic-bezier(.2,.7,.3,1)}
+/* package gallery */
+.gal{display:flex;flex-direction:column;gap:8px}
+.gal-main{position:relative;aspect-ratio:16/10;overflow:hidden;border-radius:0;background:var(--sunk)}
+.gal-main img{width:100%;height:100%;object-fit:cover;display:block}
+.gal-thumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 16px 16px}
+.gt{position:relative;aspect-ratio:16/10;overflow:hidden;border-radius:8px;border:2px solid transparent;padding:0;background:var(--sunk);transition:.18s}
+.gt img{width:100%;height:100%;object-fit:cover;display:block;opacity:.72;transition:.18s}
+.gt:hover img{opacity:1}
+.gt[aria-pressed="true"]{border-color:var(--accent)}
+.gt[aria-pressed="true"] img{opacity:1}
+/* hotel photos */
+.hgal{display:flex;flex-direction:column;gap:5px}
+.hgal .plate{border-radius:10px;aspect-ratio:4/3}
+.hgal .plate.sm{aspect-ratio:64/19}
+/* byline */
+.byline{background:var(--band-2);border-bottom:1px solid var(--band-line);color:var(--band-dim);font-size:12px}
+.byline .wrap{display:flex;align-items:center;gap:8px 18px;flex-wrap:wrap;padding-top:9px;padding-bottom:9px}
+.byline .for{color:var(--band-text);font-weight:600}
+.byline .for b{color:var(--accent)}
+.byline .by{margin-left:auto;display:flex;align-items:center;gap:8px 16px;flex-wrap:wrap}
+.byline .by .who{color:var(--band-text);font-weight:700;letter-spacing:-.01em}
+.byline a{color:var(--band-text);font-weight:600;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.28);padding-bottom:1px;white-space:nowrap}
+.byline a:hover{border-bottom-color:var(--accent);color:var(--accent)}
+@media(max-width:700px){.byline .by{margin-left:0;width:100%}}
+.fab{position:fixed;right:18px;bottom:18px;z-index:80;display:inline-flex;align-items:center;gap:9px;
+  background:#25D366;color:#05301A;padding:11px 17px;border-radius:99px;text-decoration:none;
+  font-size:13px;font-weight:700;letter-spacing:-.01em;box-shadow:0 8px 26px rgba(0,0,0,.3);border:1px solid rgba(0,0,0,.14)}
+.fab:hover{filter:brightness(1.07)}
+.fab svg{width:19px;height:19px;fill:currentColor;flex:none}
+@media(max-width:620px){.fab span{display:none}.fab{padding:14px}}
+/* footer card */
+.byme{border:1px solid var(--band-line);border-radius:var(--r-lg);padding:15px 17px;background:rgba(255,255,255,.03)}
+.byme h4{font-family:var(--disp);font-size:17px;color:var(--band-text);letter-spacing:-.02em;margin-bottom:3px}
+.byme .role{font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--accent);display:block;margin-bottom:9px}
+.byme ul{gap:7px}
+.byme a{color:var(--band-text);font-weight:600;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.26)}
+.byme a:hover{color:var(--accent);border-bottom-color:var(--accent)}
+/* dev contact */
+html:not(.dev-on) .devinfo{display:none!important}
+/* branch */
+.local{display:grid;grid-template-columns:332px 1fr;gap:0;overflow:hidden}
+.local-copy{padding:22px;display:flex;flex-direction:column;gap:11px;border-right:1px solid var(--line)}
+.local-copy h2{font-size:22px;letter-spacing:-.026em}
+.local-copy p{color:var(--text-2);font-size:13px}
+@media(max-width:860px){.local{grid-template-columns:1fr}.local-copy{border-right:none;border-bottom:1px solid var(--line)}}
+.addr{display:flex;flex-direction:column;gap:9px;padding:12px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r)}
+.addr div{display:flex;flex-direction:column}
+.addr b{font-size:13.5px;letter-spacing:-.01em}
+.addr span{font-size:11.5px;color:var(--text-2)}
+.local-shots{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:8px}
+.shot{position:relative;overflow:hidden;border-radius:10px;aspect-ratio:4/3;background:var(--sunk)}
+.shot.big{grid-column:1/-1;aspect-ratio:21/8}
+.shot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.2,.7,.3,1)}
+.shot:hover img{transform:scale(1.05)}
+.shot .sv{position:absolute;inset:0;background:linear-gradient(to top,rgba(4,16,24,.74) 0%,rgba(4,16,24,.12) 52%,transparent 74%)}
+.shot .code{position:absolute;left:11px;bottom:9px;font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.13em;color:#fff}
+/* destinations strip */
+.dstrip{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:12px}
+.dtile{position:relative;aspect-ratio:3/4;border-radius:var(--r-lg);overflow:hidden;padding:0;border:1px solid var(--line);background:var(--sunk);text-align:left;transition:.2s;display:block}
+.dtile:hover{transform:translateY(-3px);box-shadow:var(--shadow-2)}
+.dtile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.2,.7,.3,1)}
+.dtile:hover img{transform:scale(1.06)}
+.dtile .veil{position:absolute;inset:0;background:linear-gradient(to top,rgba(4,16,24,.88) 0%,rgba(4,16,24,.34) 44%,rgba(4,16,24,.05) 74%)}
+.dtile .cap{position:absolute;left:0;right:0;bottom:0;padding:12px 13px;color:#fff}
+.dtile .cap b{display:block;font-family:var(--disp);font-size:16px;font-weight:700;letter-spacing:-.022em;line-height:1.15}
+.dtile .cap .ap{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;opacity:.72;display:block;margin-bottom:3px}
+.dtile .cap .pr{font-size:11.5px;opacity:.9;margin-top:3px;display:block}
+.plate .sun{position:absolute;left:50%;top:44%;width:76px;height:76px;border-radius:99px;background:radial-gradient(circle,var(--p4) 0%,transparent 68%);transform:translate(-50%,-50%)}
+.plate .h1s,.plate .h2s{position:absolute;left:-6%;right:-6%;bottom:0}
+.plate .h1s{height:44%;clip-path:polygon(0 62%,17% 30%,31% 52%,48% 18%,66% 46%,82% 26%,100% 54%,100% 100%,0 100%);background:var(--p5);opacity:.55}
+.plate .h2s{height:31%;clip-path:polygon(0 74%,13% 50%,29% 70%,46% 42%,61% 66%,79% 44%,100% 68%,100% 100%,0 100%);background:var(--p6)}
+.plate .code{position:absolute;left:14px;bottom:11px;font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.16em;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.5)}
+.plate .tagtop{position:absolute;right:11px;top:11px}
+/* package grid */
+.grid3{display:grid;grid-template-columns:repeat(auto-fill,minmax(285px,1fr));gap:18px}
+.pcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-1);display:flex;flex-direction:column;text-align:left;transition:.18s}
+.pcard:hover{box-shadow:var(--shadow-2);border-color:var(--line-2);transform:translateY(-2px)}
+.pcard-b{padding:14px 15px 15px;display:flex;flex-direction:column;gap:8px;flex:1}
+.pcard h3{font-size:16px;letter-spacing:-.02em;line-height:1.25}
+.pcard .where{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3)}
+.pcard .incl{display:flex;flex-wrap:wrap;gap:5px;margin-top:auto;padding-top:4px}
+.pcard .foot{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;border-top:1px solid var(--line);padding-top:11px;margin-top:4px}
+.pcard .foot .amt{font-family:var(--disp);font-size:19px;font-weight:700;letter-spacing:-.025em;font-variant-numeric:tabular-nums}
+.stars{display:inline-flex;gap:1px;color:var(--accent)}
+.stars svg{width:12px;height:12px;fill:currentColor}
+.stars .off{color:var(--line-2)}
+/* itinerary */
+.itin{display:flex;flex-direction:column}
+.day{display:grid;grid-template-columns:52px 1fr;gap:14px;padding:14px 0;border-bottom:1px solid var(--line)}
+.day:last-child{border-bottom:none}
+.day-n{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);padding-top:2px}
+.day h4{font-size:14px;margin-bottom:4px}
+.day p{font-size:13px;color:var(--text-2)}
+.day .acts{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+/* reviews */
+.rev-top{display:grid;grid-template-columns:200px 1fr;gap:28px;align-items:center}
+@media(max-width:700px){.rev-top{grid-template-columns:1fr;gap:18px}}
+.score{text-align:center}
+.score b{font-family:var(--disp);font-size:54px;font-weight:700;letter-spacing:-.045em;line-height:1;display:block}
+.bars{display:flex;flex-direction:column;gap:6px}
+.bars .b{display:grid;grid-template-columns:44px 1fr 42px;gap:10px;align-items:center;font-size:12px}
+.bars .track{height:7px;border-radius:99px;background:var(--sunk);overflow:hidden}
+.bars .fill{height:100%;background:var(--accent);border-radius:99px}
+.review{padding:16px 0;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:9px}
+.review:last-child{border-bottom:none}
+.rv-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.rv-av{width:34px;height:34px;border-radius:99px;display:grid;place-items:center;font-size:12px;font-weight:700;color:#fff;flex:none}
+.reply{background:var(--surface-2);border-left:2px solid var(--accent);border-radius:0 var(--r) var(--r) 0;padding:11px 13px;margin-top:2px}
+/* checkout */
+.co{display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start}
+@media(max-width:900px){.co{grid-template-columns:1fr}}
+.frow{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.inp{display:flex;flex-direction:column;gap:5px}
+.inp > span{font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.11em;text-transform:uppercase;color:var(--text-3)}
+.inp input,.inp select{border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:9px 11px;font-size:13.5px;outline:none;transition:.15s;width:100%}
+.inp input:focus,.inp select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.addon{display:flex;align-items:center;gap:11px;padding:11px;border:1px solid var(--line);border-radius:var(--r);cursor:pointer;transition:.15s}
+.addon:hover{border-color:var(--line-2);background:var(--surface-2)}
+.addon.on{border-color:var(--accent-line);background:var(--accent-soft)}
+.addon input{accent-color:var(--accent);width:15px;height:15px;flex:none}
+.addon b{font-size:13px;display:block} .addon small{color:var(--text-2);font-size:11.5px}
+.gw{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:9px}
+.gwo{border:1px solid var(--line);border-radius:var(--r);padding:12px;text-align:left;transition:.15s;display:flex;flex-direction:column;gap:3px;background:var(--surface)}
+.gwo:hover{border-color:var(--line-2)}
+.gwo[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.gwo b{font-size:13px} .gwo small{font-size:10.5px;color:var(--text-2)}
+.securebar{display:flex;align-items:center;gap:8px;font-size:11.5px;background:var(--good-soft);color:var(--good);padding:8px 11px;border-radius:8px;font-weight:600}
+/* confirmation */
+.ticket{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-2);overflow:hidden}
+.ticket-top{background:var(--band);color:var(--band-text);padding:20px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center}
+.ticket-top .pnr{font-family:var(--mono);font-size:26px;font-weight:600;letter-spacing:.18em;color:var(--accent)}
+.perf{height:18px;background:var(--surface);position:relative;border-top:2px dashed var(--line)}
+.perf::before,.perf::after{content:"";position:absolute;top:-11px;width:20px;height:20px;border-radius:99px;background:var(--paper);border:1px solid var(--line)}
+.perf::before{left:-11px} .perf::after{right:-11px}
+.barcode{display:flex;gap:2px;align-items:flex-end;height:36px}
+.barcode i{background:var(--text);width:2px;display:block}
+/* agent desk */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:12px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:15px;box-shadow:var(--shadow-1)}
+.tile .eyebrow{display:block;margin-bottom:7px}
+.tile b{font-family:var(--disp);font-size:26px;font-weight:700;letter-spacing:-.035em;font-variant-numeric:tabular-nums;display:block;line-height:1.05}
+.tile small{display:block;margin-top:5px;font-size:11.5px;color:var(--text-2)}
+.tile.lead{background:var(--b2b-soft);border-color:var(--b2b-line)}
+.tile.lead b{color:var(--b2b)}
+.meter{height:8px;border-radius:99px;background:var(--sunk);overflow:hidden;margin-top:9px}
+.meter i{display:block;height:100%;background:var(--b2b);border-radius:99px;transition:width .25s}
+/* dashboard chart */
+.chart-wrap{overflow-x:auto}
+.chart{width:100%;min-width:520px;height:auto;display:block}
+.chart .gl{stroke:var(--line);stroke-width:1}
+.chart .ax{fill:var(--text-3);font-family:var(--mono);font-size:9.5px}
+.chart .bar path{fill:var(--accent);transition:fill .15s}
+.chart .bar:hover path{fill:var(--accent-2)}
+.chart .vl{fill:var(--text-2);font-family:var(--mono);font-size:9.5px;opacity:0;transition:opacity .15s}
+.chart .bar:hover .vl{opacity:1}
+.chart .vl.on{opacity:1;fill:var(--text);font-weight:600}
+/* channel breakdown */
+.chan{display:flex;flex-direction:column;gap:9px}
+.crow{display:grid;grid-template-columns:1fr 64px auto 34px;gap:9px;align-items:center;font-size:12.5px}
+.crow .cn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.crow .ct{height:7px;border-radius:99px;background:var(--sunk);overflow:hidden}
+.crow .ct i{display:block;height:100%;background:var(--accent);border-radius:99px}
+.crow b{font-variant-numeric:tabular-nums;font-size:12px}
+.crow .cb{text-align:right;color:var(--text-3);font-family:var(--mono);font-size:11px}
+/* ops */
+.api{display:grid;grid-template-columns:1fr auto auto;gap:14px;align-items:center;padding:13px 16px;border-bottom:1px solid var(--line)}
+.api:last-child{border-bottom:none}
+.api-n b{font-size:13.5px;display:block;letter-spacing:-.01em}
+.api-n small{font-family:var(--mono);font-size:10.5px;color:var(--text-3)}
+.spark{width:96px;height:26px;display:block}
+@media(max-width:620px){.api{grid-template-columns:1fr auto}.spark{display:none}}
+.log{font-family:var(--mono);font-size:11.5px;line-height:1.75;background:var(--band-2);color:#9FB9C6;border-radius:var(--r);padding:13px 15px;overflow-x:auto;white-space:pre}
+.log b{color:#E8F0F3;font-weight:500}
+.log .ok{color:#5FC79A} .log .wr{color:#E3B65E} .log .er{color:#F2897E} .log .t{color:#5F7C8C}
+.pipe{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.stage{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:12px}
+.stage .eyebrow{display:block;margin-bottom:8px}
+.stage b{font-family:var(--disp);font-size:22px;font-weight:700;letter-spacing:-.03em;display:block}
+.stage .who{margin-top:9px;display:flex;flex-direction:column;gap:5px;font-size:11.5px;color:var(--text-2)}
+.stage .who span{display:flex;align-items:center;gap:6px}
+/* mobile */
+.phones{display:flex;gap:26px;flex-wrap:wrap;justify-content:center;padding:8px 0}
+.phone{width:286px;border-radius:38px;background:var(--band);padding:9px;box-shadow:var(--shadow-2);flex:none}
+.phone .screen{background:var(--paper);border-radius:30px;overflow:hidden;height:566px;display:flex;flex-direction:column;position:relative}
+.statusbar{display:flex;justify-content:space-between;align-items:center;padding:9px 18px 5px;font-size:11px;font-weight:600;font-family:var(--mono)}
+.notch{position:absolute;left:50%;top:0;transform:translateX(-50%);width:104px;height:22px;background:var(--band);border-radius:0 0 13px 13px;z-index:3}
+.pbody{flex:1;overflow:hidden;padding:8px 14px 0;display:flex;flex-direction:column;gap:9px}
+.ptab{display:flex;justify-content:space-around;border-top:1px solid var(--line);background:var(--surface);padding:8px 0 12px}
+.ptab div{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9px;font-weight:600;color:var(--text-3)}
+.ptab div.on{color:var(--accent)}
+.ptab svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8}
+.phone-cap{text-align:center;margin-top:12px;font-family:var(--mono);font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--text-3)}
+/* footer */
+.foot{background:var(--band);color:var(--band-dim);margin-top:56px;padding:34px 0;font-size:12.5px}
+.foot .wrap{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;align-items:flex-start}
+.foot b{color:var(--band-text);font-family:var(--disp);display:block;margin-bottom:7px;font-size:13px}
+.foot ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:5px}
+/* toast */
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--band);color:var(--band-text);border:1px solid var(--band-line);border-radius:11px;padding:12px 18px;box-shadow:var(--shadow-2);z-index:90;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;max-width:90vw;animation:rise .28s ease}
+@keyframes rise{from{opacity:0;transform:translate(-50%,12px)}}
+.empty{text-align:center;padding:48px 20px;color:var(--text-2)}
+</style>
+<style>
+/* icon sizing */
+.chip svg,.check svg{width:12px;height:12px;flex:none;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.btn svg{width:15px;height:15px;flex:none;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round}
+.securebar svg{width:14px;height:14px;flex:none;fill:none;stroke:currentColor;stroke-width:1.9}
+.stars svg{fill:currentColor;stroke:none}
+/* flights grid */
+.fields{grid-template-columns:1.1fr auto 1.1fr .85fr .85fr 1fr auto}
+@media(max-width:1000px){.fields{grid-template-columns:1fr 1fr}.swap{display:none}}
+@media(max-width:560px){.fields{grid-template-columns:1fr}}
+</style>
+<div class="byline">
+  <div class="wrap">
+    <span class="for">Booking engine demo for a <b>Brampton</b> travel agency</span>
+  </div>
+</div>
+<header class="chrome">
+  <div class="wrap">
+    <div class="brand">
+      <span class="mark"><svg viewBox="0 0 24 24"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5L21 16z"/></svg></span>
+      <b>Wayfare</b>
+    </div>
+    <span class="tagchip">Brampton, ON &middot; prototype build</span>
+    <div class="modes" role="group" aria-label="Platform mode">
+      <button data-act="mode" data-mode="b2c" aria-pressed="true">Traveller</button>
+      <button data-act="mode" data-mode="agent" aria-pressed="false">Travel agent</button>
+      <button data-act="mode" data-mode="ops" aria-pressed="false">Admin panel</button>
+    </div>
+    <div class="chrome-r">
+      <button class="ghost" data-act="cur" id="curBtn">USD $</button>
+      <button class="ghost" data-act="theme" title="Toggle theme">Theme</button>
+      <span class="avatar" id="who">ND</span>
+    </div>
+  </div>
+</header>
+<nav class="tabs"><div class="wrap" id="tabs"></div></nav>
+<main id="view"></main>
+<footer class="foot">
+  <div class="wrap">
+    <div>
+      <b>Wayfare Booking Engine</b>
+      <p style="max-width:34ch">Booking engine demo: traveller site, agent desk and admin panel. All prices, bookings and customers are sample data.</p>
+      <p style="max-width:34ch;margin-top:9px">24 Queen Street East<br>Brampton, Ontario&nbsp; L6V 1A3<br>+1 905 555 0142</p>
+    </div>
+    <div><b>Supply</b><ul><li>Amadeus Self-Service (air)</li><li>Travelport Galileo (air)</li><li>TBO Holidays (air + hotel)</li><li>Hotelbeds (hotel)</li><li>Direct NDC - 6E, AI</li></ul></div>
+    <div><b>Payments</b><ul><li>Stripe - 3D Secure, multi-currency</li><li>Moneris - Canadian acquiring, Interac</li><li>PayPal Express</li><li>Agent wallet + credit line</li></ul></div>
+    <div><b>CRM &amp; messaging</b><ul><li>Zoho CRM - leads, deals</li><li>HubSpot - marketing sync</li><li>WhatsApp Business API</li><li>Twilio - SMS + voice OTP</li></ul></div>
+  </div>
+  <div class="wrap" style="margin-top:26px;padding-top:16px;border-top:1px solid var(--band-line)">
+    <b style="font-size:12px">Photography</b>
+    <p style="font-size:11px;line-height:1.85;max-width:none">Photos from Wikimedia Commons, used under the licences below. Swap in your own photos before launch.<br>Alberto-g-rovi (CC BY-SA 3.0) &middot; Basile Morin (CC BY-SA 4.0) &middot; CEphoto (CC BY-SA 3.0) &middot; David Kernan (CC BY 4.0) &middot; Diego Delso (CC BY-SA 3.0) &middot; Diego Delso (CC BY-SA 4.0) &middot; Dietmar Rabich (CC BY-SA 4.0) &middot; Diliff (CC BY-SA 2.5) &middot; Donaldytong (CC BY-SA 3.0) &middot; Ingo Mehling (CC BY-SA 4.0) &middot; Jakub Ha&#322;un (CC BY-SA 4.0) &middot; King of Hearts (CC BY-SA 3.0) &middot; Maksim Sokolov (maxergon.com) (CC BY-SA 4.0) &middot; Martin Falbisoner (CC BY-SA 3.0) &middot; Martin Falbisoner (CC BY-SA 4.0) &middot; Roy Egloff (CC BY-SA 4.0) &middot; Timothy A. Gonsalves (CC BY-SA 4.0) &middot; Vyacheslav Argenberg (CC BY 4.0) &middot; Ximonic (Simo R&auml;s&auml;nen) (CC BY-SA 4.0) &middot; iMahesh (CC BY-SA 4.0) &middot; Missi, Mississauga (CC BY 2.0) &middot; Sikander Iqbal (CC BY-SA 4.0) &middot; Keith Roy Miller (Public domain) &middot; Daniel Case (CC BY-SA 3.0)</p>
+  </div>
+</footer>
+<div id="toast"></div>
+<script>
+
+const SHOW_DEV_CONTACT = false;
+
+/* icons */
+const I = {
+  plane:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg>',
+  bed:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18V6M3 11h18v7M21 18v-4M7 11V8h5v3"/></svg>',
+  pack:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></svg>',
+  swap:'<svg viewBox="0 0 24 24"><path d="M7 4v12M7 16l-3-3M7 16l3-3M17 20V8M17 8l3 3M17 8l-3 3"/></svg>',
+  check:'<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>',
+  x:'<svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  star:'<svg viewBox="0 0 24 24"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.4-5.8-3-5.8 3 1.1-6.4L2.6 9.4l6.5-.9z"/></svg>',
+  search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>',
+  user:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg>',
+  ticket:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3 8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4z"/></svg>',
+  heart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20s-7-4.5-7-9a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 4.5-7 9-7 9z"/></svg>',
+  shield:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3l7 3v5.5c0 4.3-3 8-7 9.5-4-1.5-7-5.2-7-9.5V6z"/><path d="M9 12l2 2 4-4"/></svg>'
+};
+
+/* airports & routes */
+const AP = {
+  YYZ:{c:'Toronto',     n:'Pearson Intl \u00b7 22 km from Brampton', cc:'Canada', tz:-4},
+  YVR:{c:'Vancouver',   n:'Vancouver Intl',         cc:'Canada',         tz:-7},
+  YUL:{c:'Montr\u00e9al',    n:'Montr\u00e9al-Trudeau Intl',  cc:'Canada',         tz:-4},
+  JFK:{c:'New York',    n:'John F. Kennedy Intl',   cc:'United States',  tz:-4},
+  LAX:{c:'Los Angeles', n:'Los Angeles Intl',       cc:'United States',  tz:-7},
+  LHR:{c:'London',      n:'Heathrow',               cc:'United Kingdom', tz:1},
+  CDG:{c:'Paris',       n:'Charles de Gaulle',      cc:'France',         tz:2},
+  CUN:{c:'Canc\u00fan',      n:'Canc\u00fan Intl',            cc:'Mexico',         tz:-5},
+  DXB:{c:'Dubai',       n:'Dubai Intl',             cc:'UAE',            tz:4},
+  NRT:{c:'Tokyo',       n:'Narita Intl',            cc:'Japan',          tz:9},
+  SIN:{c:'Singapore',   n:'Changi',                 cc:'Singapore',      tz:8},
+  DPS:{c:'Bali',        n:'Ngurah Rai Intl',        cc:'Indonesia',      tz:8}
+};
+const ROUTES = {
+  'YYZ-LHR':{mins:430,  base:642,  via:['YUL','KEF','DUB','FRA'],       als:['AC','BA','WS','LH','AF']},
+  'YYZ-CDG':{mins:445,  base:611,  via:['YUL','LHR','AMS'],             als:['AC','AF','BA','LH']},
+  'YYZ-YVR':{mins:305,  base:248,  via:['YYC','YEG','YWG'],             als:['AC','WS','DL','UA']},
+  'YYZ-CUN':{mins:235,  base:386,  via:['YUL','ATL','IAH'],             als:['AC','WS','AA','DL','UA']},
+  'YYZ-DXB':{mins:790,  base:894,  via:['LHR','CDG','FRA','IST'],       als:['EK','AC','BA','LH','QR']},
+  'YYZ-NRT':{mins:775,  base:948,  via:['YVR','ICN','SFO'],             als:['AC','UA','DL','SQ']},
+  'YYZ-SIN':{mins:1180, base:1092, via:['DXB','NRT','ICN','FRA'],       als:['SQ','EK','QR','AC','LH']},
+  'YYZ-DPS':{mins:1340, base:1186, via:['SIN','NRT','DXB'],             als:['SQ','EK','QR','AC']},
+  'YVR-NRT':{mins:610,  base:782,  via:['SFO','LAX','ICN'],             als:['AC','UA','DL','SQ']},
+  'YVR-LHR':{mins:565,  base:702,  via:['YYZ','YUL','KEF'],             als:['AC','BA','WS','LH']},
+  'YUL-CDG':{mins:425,  base:596,  via:['YYZ','LHR','AMS'],             als:['AC','AF','LH','BA']},
+  'JFK-LHR':{mins:420,  base:558,  via:['BOS','DUB','KEF'],             als:['BA','DL','UA','AA','AF']},
+  'JFK-CDG':{mins:435,  base:585,  via:['BOS','LHR','AMS'],             als:['AF','DL','AA','LH']},
+  'JFK-DXB':{mins:750,  base:846,  via:['LHR','IST','CDG'],             als:['EK','QR','BA','AA']},
+  'LAX-LHR':{mins:635,  base:694,  via:['JFK','ORD','DUB'],             als:['BA','AA','UA','AF','LH']},
+  'LAX-NRT':{mins:690,  base:812,  via:['SFO','ICN','HNL'],             als:['AA','UA','DL','SQ']},
+  'LAX-CUN':{mins:305,  base:412,  via:['DFW','IAH','MEX'],             als:['AA','UA','DL','WS']},
+  'YYZ-JFK':{mins:95,   base:189,  via:['YUL','BOS'],                   als:['AC','DL','UA','AA','WS']}
+};
+/* popular routes */
+const DESTS = [
+  {c:'London',   ap:'LHR', img:'img/ds1.jpg', note:'5 carriers \u00b7 7h 10m nonstop'},
+  {c:'New York', ap:'JFK', img:'img/ds2.jpg', note:'Hourly shuttle \u00b7 1h 35m'},
+  {c:'Paris',    ap:'CDG', img:'img/ds3.jpg', note:'4 carriers \u00b7 7h 25m nonstop'},
+  {c:'Tokyo',    ap:'NRT', img:'img/ds4.jpg', note:'Seasonal nonstop \u00b7 12h 55m'},
+  {c:'Canc\u00fan',   ap:'CUN', img:'img/ds5.jpg', note:'Daily nonstop \u00b7 3h 55m'},
+  {c:'Dubai',    ap:'DXB', img:'img/ds6.jpg', note:'1 stop via Europe \u00b7 13h 10m'}
+];
+const AIRLINES = [
+  {code:'AC', name:'Air Canada',           bg:'#A8201C', tier:1.06, ndc:true },
+  {code:'WS', name:'WestJet',              bg:'#1D4E89', tier:0.88, ndc:true },
+  {code:'DL', name:'Delta Air Lines',      bg:'#0B2E63', tier:1.04, ndc:false},
+  {code:'UA', name:'United Airlines',      bg:'#16406E', tier:1.02, ndc:false},
+  {code:'AA', name:'American Airlines',    bg:'#7A2036', tier:1.00, ndc:false},
+  {code:'BA', name:'British Airways',      bg:'#0F2C5C', tier:1.16, ndc:false},
+  {code:'AF', name:'Air France',           bg:'#123A73', tier:1.12, ndc:false},
+  {code:'LH', name:'Lufthansa',            bg:'#05164B', tier:1.14, ndc:true },
+  {code:'EK', name:'Emirates',             bg:'#8E2420', tier:1.22, ndc:false},
+  {code:'QR', name:'Qatar Airways',        bg:'#5C0F2E', tier:1.19, ndc:false},
+  {code:'SQ', name:'Singapore Airlines',   bg:'#1E3A5F', tier:1.24, ndc:false}
+];
+const SUPPLIERS = ['Amadeus','Travelport','TBO','Direct NDC'];
+const AIRCRAFT = ['Boeing 777-300ER','Airbus A350-900','Airbus A320neo','Boeing 787-9','Airbus A321neo','Boeing 737-8'];
+
+/* hotels */
+const HOTELS = [
+  {id:'h1', n:'Meridian Creek Resort & Spa', city:'Dubai', area:'Jumeirah Beach Residence', star:5, score:9.1, rev:1284, rate:168, img:'img/ht1.jpg', img2:'img/ht1a.jpg', room:'Deluxe King \u00b7 Sea view', board:'Breakfast included', free:true, sup:'Hotelbeds', tags:['Beachfront','Infinity pool','Airport transfer'], p:['#F2B06A','#E08640','#8C4A2F','#FFD9A8','#3E2318','#241009']},
+  {id:'h2', n:'The Alcove, Palm Jumeirah', city:'Dubai', area:'Palm Jumeirah West', star:5, score:9.4, rev:842, rate:254, img:'img/ht2.jpg', img2:'img/ht2a.jpg', room:'Premier Suite \u00b7 Private terrace', board:'Half board', free:true, sup:'TBO', tags:['Private beach','Spa','Butler service'], p:['#7FC4D6','#3E93B5','#1E5878','#CFF0F7','#123246','#08141F']},
+  {id:'h3', n:'Harbourline Boutique Hotel', city:'Dubai', area:'Business Bay', star:4, score:8.6, rev:2011, rate:105, img:'img/ht3.jpg', img2:'img/ht3a.jpg', room:'Executive Twin', board:'Room only', free:true, sup:'Amadeus', tags:['Metro 300 m','Rooftop bar','Co-working'], p:['#C9A9E0','#8F6FB8','#4B3572','#EBDCF7','#241B3A','#0F0B1C']},
+  {id:'h4', n:'Sandbar Marina Apartments', city:'Dubai', area:'Dubai Marina', star:4, score:8.2, rev:1476, rate:87, img:'img/ht4.jpg', img2:'img/ht4a.jpg', room:'1-BR Apartment \u00b7 Kitchenette', board:'Room only', free:false, sup:'TBO', tags:['Self-catering','Gym','Long-stay rates'], p:['#F4D06F','#D99A3E','#8A5A24','#FFF0C4','#3A2A12','#1A1206']},
+  {id:'h5', n:'Old Town Courtyard Inn', city:'Dubai', area:'Al Fahidi Historical District', star:3, score:8.0, rev:934, rate:54, img:'img/ht5.jpg', img2:'img/ht5a.jpg', room:'Standard Double', board:'Breakfast included', free:true, sup:'Hotelbeds', tags:['Heritage building','Souk 5 min','Family rooms'], p:['#E7A17A','#C4714B','#7A3C24','#FBD9C2','#33180E','#180A05']}
+];
+
+/* packages */
+const PACKAGES = [
+  {id:'p1', n:'Dubai Desert & Skyline', dest:'Dubai, UAE', code:'DXB', img:'img/pk1.jpg', g:['img/pk1.jpg','img/pk1a.jpg','img/pk1b.jpg'], nights:5, days:6, from:459, was:549, rating:4.8, revs:312, cat:'Bestseller',
+   incl:['Return flights','4\u2605 hotel','Desert safari','Burj Khalifa L124','Airport transfers'],
+   p:['#FBC77D','#F09443','#8E4A21','#FFE9C4','#4A2413','#25100A'],
+   blurb:'Five nights split between a Marina high-rise and a desert camp, built around the two things guests actually book Dubai for: the skyline and the dunes.',
+   itin:[
+     {t:'Arrive Dubai \u00b7 Marina check-in', d:'Meet-and-greet at DXB Terminal 3, private transfer to Dubai Marina. Evening dhow cruise with dinner along the creek.', a:['Private transfer','Dhow dinner cruise']},
+     {t:'Burj Khalifa & Dubai Mall', d:'Level 124 + 125 observation deck on a timed slot, then Dubai Aquarium and the fountain show from the Waterfront Promenade.', a:['Skip-the-line entry','Aquarium pass']},
+     {t:'Red dune desert safari', d:'Afternoon 4x4 dune bashing in the Lahbab red dunes, camel ride, henna, BBQ dinner and a live tanoura show at the Bedouin camp.', a:['4x4 safari','Overnight camp option']},
+     {t:'Abu Dhabi day trip', d:'Sheikh Zayed Grand Mosque, Qasr Al Watan and Ferrari World entry. Return by early evening.', a:['Cross-emirate coach','3 entries']},
+     {t:'Free day + Palm Jumeirah', d:'Morning at leisure. Afternoon monorail to Atlantis, The Palm and Aquaventure waterpark day pass.', a:['Aquaventure pass','Monorail']},
+     {t:'Departure', d:'Checkout at 12:00, private transfer to DXB. Late-checkout upgrade available on request.', a:['Private transfer']}
+   ]},
+  {id:'p2', n:'Bali Honeymoon Retreat', dest:'Bali, Indonesia', code:'DPS', img:'img/pk2.jpg', g:['img/pk2.jpg','img/pk2a.jpg','img/pk2b.jpg'], nights:6, days:7, from:619, was:719, rating:4.9, revs:198, cat:'Honeymoon',
+   incl:['Return flights','Pool villa 3N','Beach resort 3N','Candlelit dinner','Ubud day tour'],
+   p:['#9FE0B4','#4FB283','#1F6B4C','#DFFBE9','#123326','#06170F'],
+   blurb:'Split-stay across Ubud jungle and Seminyak sand, with the honeymoon extras built into the rate rather than upsold at the desk.',
+   itin:[
+     {t:'Arrive Denpasar \u00b7 Ubud villa', d:'Private transfer to a Ubud valley pool villa. Welcome flower bath and in-villa dinner on arrival night.', a:['Private transfer','Flower bath']},
+     {t:'Ubud culture circuit', d:'Tegalalang rice terraces at sunrise, Tirta Empul water temple, Sacred Monkey Forest and a Balinese cooking class.', a:['Sunrise tour','Cooking class']},
+     {t:'Mount Batur sunrise trek', d:'02:00 pickup for the Batur summit trek with a guide, breakfast cooked over volcanic steam, then a hot-spring soak.', a:['Guided trek','Hot springs']},
+     {t:'Transfer to Seminyak', d:'Coastal transfer via Tanah Lot sea temple. Afternoon check-in at the beach resort, sunset at the beach club.', a:['Tanah Lot','Beach club']},
+     {t:'Nusa Penida island day', d:'Fast boat to Nusa Penida for Kelingking Beach, Angel Billabong and Broken Beach with a private driver.', a:['Fast boat','Private driver']},
+     {t:'Candlelit beach dinner', d:'Day at leisure, spa couples treatment in the afternoon and a private candlelit dinner on the sand.', a:['Couples spa','Private dinner']},
+     {t:'Departure', d:'Late checkout at 14:00, transfer to DPS for the evening flight.', a:['Late checkout']}
+   ]},
+  {id:'p3', n:'Kerala Backwaters & Tea Hills', dest:'Kochi \u00b7 Munnar \u00b7 Alleppey', code:'COK', img:'img/pk3.jpg', g:['img/pk3.jpg','img/pk3a.jpg','img/pk3b.jpg'], nights:4, days:5, from:259, was:299, rating:4.7, revs:441, cat:'Family',
+   incl:['AC transport','Houseboat 1N','Tea estate stay','All breakfasts','Kathakali show'],
+   p:['#A8D98C','#5FA04E','#26542C','#E2F6D4','#12300F','#071706'],
+   blurb:'The classic Kerala loop at a pace families can actually keep - one houseboat night, two hill nights, and no day longer than four hours on the road.',
+   itin:[
+     {t:'Kochi arrival \u00b7 Fort Kochi', d:'Airport pickup, Chinese fishing nets, Mattancherry Palace and St Francis Church. Evening Kathakali performance.', a:['Heritage walk','Kathakali show']},
+     {t:'Drive to Munnar', d:'Four-hour drive through Cheeyappara and Valara falls. Check in to a working tea estate bungalow.', a:['Estate stay','Waterfall stops']},
+     {t:'Munnar tea country', d:'Eravikulam National Park for the Nilgiri tahr, Tea Museum, Mattupetty Dam and Echo Point.', a:['Park permit','Tea museum']},
+     {t:'Alleppey houseboat', d:'Board a private 2-bedroom kettuvallam at noon. Lunch, dinner and breakfast cooked onboard while cruising the Vembanad backwaters.', a:['Private houseboat','All meals']},
+     {t:'Disembark \u00b7 Kochi departure', d:'Disembark 09:00, drive to Kochi airport with a stop at the Alleppey coir village.', a:['Airport drop']}
+   ]},
+  {id:'p4', n:'Swiss Alps Rail Journey', dest:'Zurich \u00b7 Interlaken \u00b7 Zermatt', code:'ZRH', img:'img/pk4.jpg', g:['img/pk4.jpg','img/pk4a.jpg','img/pk4b.jpg'], nights:7, days:8, from:1749, was:1990, rating:4.9, revs:126, cat:'Premium',
+   incl:['Return flights','Swiss Travel Pass','Jungfraujoch','Glacier Express','4\u2605 central hotels'],
+   p:['#BFD9F2','#7FA8D6','#3D5F8A','#EAF3FC','#1B2C42','#0A1220'],
+   blurb:'Eight days on the Swiss Travel Pass with the two rail journeys worth the airfare - Jungfraujoch and the Glacier Express - booked in advance, not queued for.',
+   itin:[
+     {t:'Arrive Zurich', d:'Swiss Travel Pass activated at the airport station. Train to the old town hotel, evening Limmat river walk.', a:['Rail pass','City walk']},
+     {t:'Zurich to Lucerne', d:'Chapel Bridge, Lion Monument and a Lake Lucerne steamer cruise included on the pass.', a:['Lake cruise']},
+     {t:'Mount Pilatus circuit', d:'Golden Round Trip - cogwheel railway up, cable car and gondola down, boat back to Lucerne.', a:['Golden Round Trip']},
+     {t:'To Interlaken', d:'Scenic Luzern-Interlaken Express through the Br\u00fcnig Pass. Afternoon free at H\u00f6hematte.', a:['Scenic rail']},
+     {t:'Jungfraujoch \u00b7 Top of Europe', d:'Cogwheel to 3,454 m, Ice Palace, Sphinx observatory and the Aletsch Glacier viewpoint.', a:['Jungfrau ticket']},
+     {t:'Glacier Express to Zermatt', d:'Eight hours in a panoramic first-class coach over the Oberalp Pass, lunch served at seat.', a:['1st class panoramic','Seat reservation']},
+     {t:'Gornergrat & Matterhorn', d:'Gornergrat Bahn to 3,089 m for the Matterhorn face, afternoon in car-free Zermatt.', a:['Gornergrat Bahn']},
+     {t:'Zermatt to Zurich \u00b7 departure', d:'Morning rail to Zurich Airport, direct platform access to check-in.', a:['Rail transfer']}
+   ]},
+  {id:'p5', n:'Thailand Island Hopper', dest:'Phuket \u00b7 Krabi \u00b7 Phi Phi', code:'HKT', img:'img/pk5.jpg', g:['img/pk5.jpg','img/pk5a.jpg','img/pk5b.jpg'], nights:6, days:7, from:409, was:469, rating:4.6, revs:527, cat:'Bestseller',
+   incl:['Return flights','Speedboat transfers','Phi Phi day trip','James Bond Island','Daily breakfast'],
+   p:['#8FE3DA','#3FB3B0','#186C74','#D8FAF6','#0D3338','#05181C'],
+   blurb:'Three bases, two speedboat days, no backtracking - routed so you only unpack when the island actually changes.',
+   itin:[
+     {t:'Arrive Phuket', d:'Transfer to Patong. Evening at Bangla Road and the night market.', a:['Transfer','Night market']},
+     {t:'Phi Phi islands day', d:'Speedboat to Maya Bay, Pileh Lagoon, Viking Cave and Bamboo Island with snorkelling gear and lunch.', a:['Speedboat','Snorkel kit']},
+     {t:'Phang Nga Bay', d:'James Bond Island, sea-cave canoeing at Hong Island and a floating Muslim village lunch at Koh Panyee.', a:['Sea canoe','Local lunch']},
+     {t:'Transfer to Krabi', d:'Ferry to Ao Nang, check in to a cliffside resort. Sunset at Nopparat Thara beach.', a:['Ferry','Resort check-in']},
+     {t:'Four Islands tour', d:'Longtail to Tup, Chicken, Poda and Phra Nang Cave beach with the sandbar walk at low tide.', a:['Longtail boat']},
+     {t:'Railay & free day', d:'Morning at Railay West, afternoon free for Thai massage or the Tiger Cave temple climb.', a:['Railay transfer']},
+     {t:'Departure', d:'Transfer to Krabi International for the return flight.', a:['Airport transfer']}
+   ]},
+  {id:'p6', n:'Singapore City Break', dest:'Singapore', code:'SIN', img:'img/pk6.jpg', g:['img/pk6.jpg','img/pk6a.jpg','img/pk6b.jpg'], nights:3, days:4, from:325, was:369, rating:4.7, revs:389, cat:'Short break',
+   incl:['Return flights','4\u2605 Orchard hotel','Universal Studios','Gardens by the Bay','Night Safari'],
+   p:['#F2A0B8','#C9557F','#6E2244','#FDDCE6','#331020','#1A070F'],
+   blurb:'A long-weekend build for the Friday-night departure - four days, five headline attractions, all within one MRT pass.',
+   itin:[
+     {t:'Arrive \u00b7 Orchard Road', d:'Changi arrival, MRT pass issued, check in on Orchard Road. Evening at Clarke Quay.', a:['MRT pass','Clarke Quay']},
+     {t:'Sentosa & Universal Studios', d:'Full day at Universal Studios Singapore with a one-day park pass, cable car return.', a:['USS pass','Cable car']},
+     {t:'Gardens & Marina Bay', d:'Cloud Forest, Flower Dome and the Supertree Grove light show, then the Marina Bay Sands SkyPark.', a:['2 domes','SkyPark']},
+     {t:'Night Safari \u00b7 departure', d:'Morning at Chinatown and Little India, Night Safari tram before the late departure.', a:['Tram ride','Airport drop']}
+   ]}
+];
+
+/* reviews */
+const REVIEWS = [
+  {n:'Priya Raghavan', av:'#9E2B25', r:5, d:'12 Sep 2026', sub:'Dubai Desert & Skyline \u00b7 5N', ref:'WF-8841027', help:24,
+   t:'Booked for four adults and two kids. The desert safari pickup was 20 minutes late but the operator called ahead, which mattered more than the delay. Burj Khalifa slots were pre-booked so we skipped a 40-minute queue. The Abu Dhabi day is long - leave it out if you have young children.'},
+  {n:'Marcus Vieira', av:'#123A6B', r:5, d:'04 Sep 2026', sub:'YYZ \u2192 LHR \u00b7 Air Canada \u00b7 Business', ref:'WF-8829514', help:11,
+   t:'Fare came back cheaper here than on the airline site for the same booking class, and the seat map was live rather than a static picture. Changed the return date two days out and the reissue fee quoted at checkout matched what was actually charged. That is rarer than it should be.'},
+  {n:'Anita Deshmukh', av:'#0F5B4C', r:4, d:'28 Aug 2026', sub:'Kerala Backwaters \u00b7 4N', ref:'WF-8801663', help:38,
+   t:'Houseboat and the tea estate stay were both better than the photos suggested. Marking it four rather than five only because the Munnar drive was billed as three hours and took closer to five with the roadworks. Support answered on WhatsApp within a few minutes each time.'},
+  {n:'Daniel Okonjo', av:'#54307E', r:5, d:'21 Aug 2026', sub:'Thailand Island Hopper \u00b7 6N', ref:'WF-8778230', help:16,
+   t:'The routing is the selling point - Phuket to Krabi by ferry instead of doubling back through the airport saved most of a day. Maya Bay was crowded by 10am, so take the early boat option if it is offered.'},
+  {n:'Reena Kapoor', av:'#B4530B', r:3, d:'15 Aug 2026', sub:'YYZ \u2192 CUN \u00b7 WestJet \u00b7 Economy', ref:'WF-8752901', help:7,
+   t:'The booking itself was quick and the fare breakdown was clear about what the convenience fee covered. Web check-in link arrived late though - about six hours before departure rather than the 48 hours the confirmation promised.',
+   reply:'Thank you Reena - the check-in link is triggered by the airline\'s own T-48 push and WestJet released it late on that sector. We have since added a fallback that sends our own reminder at T-36 regardless of the carrier feed.'},
+  {n:'Tom\u00e1s Herrera', av:'#1B3A93', r:5, d:'09 Aug 2026', sub:'Swiss Alps Rail Journey \u00b7 7N', ref:'WF-8730118', help:52,
+   t:'Glacier Express seat reservations were confirmed six weeks ahead, which is the whole reason to book a package rather than assemble it yourself. Jungfraujoch was clouded in on our slot and the team rebooked it to the following morning at no cost.'}
+];
+
+/* integrations */
+const APIS = [
+  {n:'Amadeus Self-Service', k:'Air search \u00b7 fare rules \u00b7 PNR create', st:'live', ms:412, up:'99.96%', s:[430,398,441,402,388,455,412,396,421,405,412]},
+  {n:'Travelport Galileo',   k:'Air search \u00b7 ticketing \u00b7 EMD',        st:'live', ms:688, up:'99.81%', s:[640,702,671,733,688,655,712,690,668,701,688]},
+  {n:'TBO Holidays',         k:'Air + hotel \u00b7 static content',        st:'live', ms:544, up:'99.90%', s:[510,556,532,578,544,521,560,538,549,527,544]},
+  {n:'Hotelbeds APItude',    k:'Hotel availability \u00b7 booking',        st:'degraded', ms:1840, up:'98.42%', s:[620,700,910,1240,1520,1710,1840,1790,1880,1820,1840]},
+  {n:'Moneris',              k:'Canadian acquiring \u00b7 Interac \u00b7 refunds', st:'live', ms:238, up:'99.99%', s:[244,231,250,228,239,242,233,247,236,241,238]},
+  {n:'Stripe',               k:'3D Secure \u00b7 multi-currency',          st:'live', ms:196, up:'99.99%', s:[188,203,194,210,191,199,186,204,193,200,196]},
+  {n:'Zoho CRM',             k:'Lead \u00b7 deal \u00b7 contact sync',          st:'live', ms:355, up:'99.87%', s:[340,362,351,370,348,359,344,368,352,361,355]},
+  {n:'WhatsApp Business',    k:'Itinerary + boarding pass delivery',  st:'live', ms:280, up:'99.94%', s:[271,288,277,294,283,275,290,279,286,274,280]},
+  {n:'Sabre',                k:'Air search - secondary source',       st:'off',  ms:0,   up:'-',      s:[0,0,0,0,0,0,0,0,0,0,0]}
+];
+const PIPE = [
+  {st:'New enquiry', n:48, who:['Website chat - 21','WhatsApp - 14','Phone - 13']},
+  {st:'Quote sent', n:31, who:['Auto-quote - 19','Agent-built - 12']},
+  {st:'Hold / option', n:12, who:['Air on TTL - 7','Hotel on option - 5']},
+  {st:'Booked', n:19, who:['Paid in full - 15','Part payment - 4']},
+  {st:'Post-travel', n:26, who:['Review requested - 26','Responded - 11']}
+];
+const LOGLINES = [
+  ['12:04:18','ok','POST /v1/air/search','amadeus \u00b7 YYZ-LHR \u00b7 14 offers \u00b7 412 ms'],
+  ['12:04:19','ok','POST /v1/air/search','tbo \u00b7 YYZ-LHR \u00b7 9 offers \u00b7 544 ms'],
+  ['12:04:21','wr','POST /v1/hotel/avail','hotelbeds \u00b7 retry 1/3 \u00b7 upstream 1840 ms'],
+  ['12:04:23','ok','POST /v1/hotel/avail','hotelbeds \u00b7 62 properties \u00b7 served from cache'],
+  ['12:06:02','ok','POST /v1/order/price','amadeus \u00b7 fare confirmed \u00b7 no change'],
+  ['12:06:44','ok','POST /stripe/payment_intent','pi_3QxN82mK \u00b7 USD 1,284.00 \u00b7 created'],
+  ['12:07:09','ok','WEBHOOK payment_intent.succeeded','pi_3QxN82mK \u00b7 Visa \u00b7 3DS passed'],
+  ['12:07:10','ok','POST /v1/order/create','amadeus \u00b7 PNR JHK4TQ \u00b7 TTL 2026-09-19 23:59'],
+  ['12:07:12','ok','POST zoho/Deals','deal 4827741 \u00b7 stage Booked \u00b7 amount synced'],
+  ['12:07:13','ok','POST wa/messages','template itinerary_v3 \u00b7 delivered'],
+  ['12:09:51','er','POST /v1/air/search','sabre \u00b7 401 credentials not configured'],
+  ['12:11:30','ok','CRON fare-cache-warm','142 routes refreshed \u00b7 8.2 s']
+];
+
+/* b2b agent data */
+const MARKUP_RULES = [
+  {sup:'Amadeus',  scope:'All international air', type:'pct',  v:6,    comm:'1.2% IATA', active:true},
+  {sup:'Direct NDC', scope:'AC / WS transborder', type:'flat', v:15,   comm:'$4.50 seg', active:true},
+  {sup:'TBO',      scope:'Gulf sectors (DXB/AUH/DOH)', type:'pct', v:8, comm:'2.0%',   active:true},
+  {sup:'Hotelbeds',scope:'All hotel bookings',    type:'pct',  v:12,   comm:'net rate', active:true},
+  {sup:'Travelport',scope:'Europe long-haul',     type:'pct',  v:5,    comm:'0.9%',     active:false}
+];
+const AGENT_BOOKINGS = [
+  {ref:'WF-8841027', pax:'R. Tremblay +3', item:'YYZ \u2192 LHR \u00b7 AC 856', dt:'14 Oct', net:845, sell:896, st:'Ticketed', sup:'Amadeus'},
+  {ref:'WF-8840912', pax:'S. Okafor +1', item:'Meridian Creek \u00b7 4N', dt:'19 Oct', net:670, sell:750, st:'Confirmed', sup:'Hotelbeds'},
+  {ref:'WF-8840788', pax:'A. Khan',      item:'YYZ \u2192 CUN \u00b7 WS 2312', dt:'02 Nov', net:294, sell:312, st:'On hold', sup:'Travelport'},
+  {ref:'WF-8840651', pax:'D. Fernandes +5', item:'Thailand Island Hopper', dt:'11 Nov', net:2450, sell:2744, st:'Part paid', sup:'TBO'},
+  {ref:'WF-8840502', pax:'N. Gupta +2',  item:'JFK \u2192 LHR \u00b7 BA 178',  dt:'28 Nov', net:1820, sell:1929, st:'Ticketed', sup:'Amadeus'}
+];
+
+/* state */
+const state = {
+  mode:'b2c', tab:'search', cur:'USD', sub:null,
+  trip:{type:'oneway', from:'YYZ', to:'LHR', dep:'2026-10-14', ret:'2026-10-21', adt:1, chd:0, cabin:'Economy'},
+  hotelCity:'Dubai',
+  results:[], hotels:HOTELS,
+  filters:{stops:'any', als:[], sups:[], maxPrice:null, dep:'any', refundOnly:false},
+  sort:'best', openCard:null,
+  sel:null, addons:{seat:false, bag:false, ins:false, meal:false}, gw:'stripe',
+  markup:{type:'pct', v:6},
+  booking:null, pkg:null, revFilter:0
+};
+const RATES = {USD:{sym:'$', r:1, loc:'en-US'}, CAD:{sym:'C$', r:1.37, loc:'en-CA'}};
+
+/* helpers */
+const el = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function money(v, dp){
+  const c = RATES[state.cur];
+  return c.sym + (v * c.r).toLocaleString(c.loc, {minimumFractionDigits:dp||0, maximumFractionDigits:dp||0});
+}
+function hhmm(m){ m = ((m % 1440) + 1440) % 1440; return String(Math.floor(m/60)).padStart(2,'0') + ':' + String(m%60).padStart(2,'0'); }
+function dur(m){ return Math.floor(m/60) + 'h ' + String(m%60).padStart(2,'0') + 'm'; }
+function hash(s){ let h = 2166136261; for(let i=0;i<s.length;i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+function rngOf(seed){ let s = seed >>> 0; return () => { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return s / 4294967296; }; }
+function pick(rnd, arr){ return arr[Math.floor(rnd() * arr.length)]; }
+function pad(n, w){ return String(n).padStart(w, '0'); }
+function fmtDate(iso){
+  const d = new Date(iso + 'T00:00:00');
+  return d.toLocaleDateString('en-GB', {weekday:'short', day:'2-digit', month:'short'});
+}
+function stars(n, max){
+  max = max || 5; let out = '<span class="stars" aria-label="' + n + ' of ' + max + '">';
+  for(let i=1;i<=max;i++) out += '<span class="' + (i<=Math.round(n)?'':'off') + '">' + I.star + '</span>';
+  return out + '</span>';
+}
+function toast(msg, kind){
+  const t = el('#toast');
+  t.innerHTML = '<div class="toast"><span class="dot" style="color:' + (kind==='b2b'?'var(--b2b)':'var(--accent)') + '"></span>' + msg + '</div>';
+  clearTimeout(toast._t); toast._t = setTimeout(() => { t.innerHTML = ''; }, 3600);
+}
+/* sell = net + markup (agent mode) */
+function sell(net){
+  if(state.mode !== 'agent') return net;
+  return state.markup.type === 'pct' ? Math.round(net * (1 + state.markup.v/100)) : net + state.markup.v;
+}
+function margin(net){ return sell(net) - net; }
+
+/* fare engine */
+const FARE_FAMILIES = [
+  {k:'saver', n:'Saver',    mult:1.00, bag:'Carry-on only',     cabin:'1 \u00d7 10 kg cabin', seat:false, meal:false, refund:false, chg:'$95 + fare difference'},
+  {k:'flex',  n:'Flex',     mult:1.17, bag:'1 \u00d7 23 kg checked', cabin:'1 \u00d7 10 kg cabin', seat:true,  meal:true,  refund:true,  chg:'Free before T-24'},
+  {k:'prem',  n:'Business', mult:2.84, bag:'2 \u00d7 32 kg checked', cabin:'2 \u00d7 10 kg cabin', seat:true,  meal:true,  refund:true,  chg:'Free \u00b7 any time'}
+];
+function buildOffers(){
+  const key = state.trip.from + '-' + state.trip.to;
+  const rt = ROUTES[key] || {mins:480, base:640, via:['LHR','CDG','FRA'], als:['AC','BA','UA','LH','AF','DL']};
+  const rnd = rngOf(hash(key + state.trip.dep + state.trip.cabin));
+  const codes = rt.als || AIRLINES.map(a => a.code);
+  const pool = AIRLINES.filter(a => codes.indexOf(a.code) > -1).sort(() => rnd() - 0.5).slice(0, 6);
+  const offers = [];
+  pool.forEach((al, i) => {
+    const nCount = i < 3 ? 1 : 2;
+    for(let j = 0; j < nCount; j++){
+      const stops = (i === 0 || i === 1) ? 0 : (rnd() < 0.45 ? 0 : 1);
+      const depMin = Math.floor(rnd() * 20) * 60 + Math.floor(rnd() * 12) * 5 + 60;
+      const layover = stops ? 55 + Math.floor(rnd() * 26) * 10 : 0;
+      const mins = rt.mins + (stops ? layover + 45 + Math.floor(rnd() * 60) : 0);
+      const tzShift = (AP[state.trip.to] ? AP[state.trip.to].tz : 4) - (AP[state.trip.from] ? AP[state.trip.from].tz : 5.5);
+      const arrRaw = depMin + mins + tzShift * 60;
+      const timeFactor = depMin < 360 ? 0.90 : depMin > 1200 ? 0.94 : 1.06;
+      const net = Math.round((rt.base * al.tier * timeFactor * (stops ? 0.86 : 1.09) * (0.96 + rnd() * 0.12)) / 10) * 10;
+      offers.push({
+        id: al.code + '-' + i + j,
+        al, no: al.code + ' ' + (100 + Math.floor(rnd() * 880)),
+        dep: depMin, arr: ((arrRaw % 1440) + 1440) % 1440,
+        plus: Math.floor(arrRaw / 1440),
+        mins, stops, via: stops ? pick(rnd, rt.via) : null, layover,
+        net, sup: al.ndc && rnd() < 0.5 ? 'Direct NDC' : pick(rnd, SUPPLIERS.slice(0, 3)),
+        seats: 1 + Math.floor(rnd() * 8),
+        craft: pick(rnd, AIRCRAFT),
+        rbd: pick(rnd, ['Y','M','B','K','L','Q']),
+        onTime: 72 + Math.floor(rnd() * 25)
+      });
+    }
+  });
+  offers.forEach(o => {
+    o.fares = FARE_FAMILIES.map((f, i) => ({...f, price: Math.round(o.net * f.mult / 10) * 10, best: i === 0}));
+  });
+  state.results = offers;
+  state.filters.maxPrice = null;
+}
+function paxCount(){ return state.trip.adt + state.trip.chd; }
+function routeFrom(to){
+  const r = ROUTES[state.trip.from + '-' + to];
+  return r ? Math.round(r.base * 0.92 / 5) * 5 : 640;
+}
+function visibleOffers(){
+  const f = state.filters;
+  let r = state.results.filter(o => {
+    if(f.stops === '0' && o.stops !== 0) return false;
+    if(f.stops === '1' && o.stops > 1) return false;
+    if(f.als.length && !f.als.includes(o.al.code)) return false;
+    if(f.sups.length && !f.sups.includes(o.sup)) return false;
+    if(f.maxPrice != null && o.net > f.maxPrice) return false;
+    if(f.dep === 'am' && !(o.dep >= 300 && o.dep < 720)) return false;
+    if(f.dep === 'pm' && !(o.dep >= 720 && o.dep < 1080)) return false;
+    if(f.dep === 'eve' && !(o.dep >= 1080 || o.dep < 300)) return false;
+    return true;
+  });
+  const s = state.sort;
+  r.sort((a, b) =>
+    s === 'price' ? a.net - b.net :
+    s === 'dur'   ? a.mins - b.mins :
+    s === 'dep'   ? a.dep - b.dep :
+    (a.net / 1000 + a.mins / 60 + a.stops * 3) - (b.net / 1000 + b.mins / 60 + b.stops * 3));
+  return r;
+}
+
+/* tabs */
+const TABS = {
+  b2c:  [['search','Search'],['packages','Packages'],['reviews','Reviews'],['mobile','Mobile app']],
+  agent:[['desk','Agent desk'],['search','Search & book'],['bookings','Bookings'],['markup','Markup rules']],
+  ops:  [['dash','Dashboard'],['abook','Bookings'],['cust','Customers'],['aagents','Agents'],
+         ['apkg','Packages'],['pay','Payments'],['ops','Integrations'],['settings','Settings']]
+};
+function renderTabs(){
+  const list = TABS[state.mode];
+  el('#tabs').innerHTML = list.map(([k, label]) =>
+    '<button class="tab' + (state.mode === 'agent' ? ' b2b' : '') + '" role="tab" data-act="tab" data-tab="' + k + '" aria-selected="' + (state.tab === k) + '">' + label + '</button>'
+  ).join('');
+  document.querySelectorAll('.modes button').forEach(b => b.setAttribute('aria-pressed', b.dataset.mode === state.mode));
+  el('#who').textContent = state.mode === 'agent' ? 'HT' : state.mode === 'ops' ? 'AD' : 'ND';
+  el('#who').style.background = state.mode === 'agent'
+    ? 'linear-gradient(140deg,var(--b2b),#0A5C5B)'
+    : 'linear-gradient(140deg,var(--accent),#B43C0F)';
+  el('#curBtn').textContent = state.cur === 'USD' ? 'USD $' : 'CAD C$';
+}
+
+/* search view */
+const BAND_ART = `<img class="band-photo" src="img/hero.jpg" alt="" aria-hidden="true">
+<span class="band-scrim" aria-hidden="true"></span>
+<div class="band-art" aria-hidden="true"><svg viewBox="0 0 1200 380" preserveAspectRatio="xMidYMid slice">
+  <g fill="none" stroke="#2E6180" stroke-width="1" stroke-dasharray="5 7">
+    <path d="M-60 310 Q 260 60 620 190 T 1270 90"/>
+    <path d="M-60 360 Q 340 210 700 260 T 1270 200"/>
+    <path d="M-60 230 Q 220 130 520 130 T 1270 20"/>
+  </g>
+  <g fill="none" stroke="#FF5A1F" stroke-width="1.6" stroke-dasharray="7 9">
+    <path d="M120 300 Q 420 110 760 175 T 1180 130"/>
+  </g>
+  <g fill="#FF5A1F"><circle cx="120" cy="300" r="4.5"/><circle cx="1180" cy="130" r="4.5"/></g>
+  <g fill="#2E6180"><circle cx="760" cy="175" r="3"/><circle cx="520" cy="130" r="3"/><circle cx="340" cy="212" r="3"/></g>
+</svg></div>`;
+
+function apField(which){
+  const code = state.trip[which], a = AP[code];
+  return `<div class="field">
+    <label for="ap-${which}">${which === 'from' ? 'From' : 'To'}</label>
+    <select id="ap-${which}" data-act="trip" data-k="${which}">
+      ${Object.keys(AP).map(c => `<option value="${c}"${c === code ? ' selected' : ''}>${AP[c].c} (${c})</option>`).join('')}
+    </select>
+    <div class="sub">${esc(a.n)}</div>
+  </div>`;
+}
+
+function viewSearch(){
+  const stab = state.stab || 'flights';
+  const t = state.trip;
+  const segs = [['flights','Flights',I.plane],['hotels','Hotels',I.bed],['packages','Packages',I.pack]];
+  const flightForm = `
+    <div class="triptype">
+      ${[['oneway','One way'],['return','Round trip'],['multi','Multi-city']].map(([v, l]) =>
+        `<label class="radio"><input type="radio" name="tt" value="${v}" data-act="triptype"${t.type === v ? ' checked' : ''}>${l}</label>`).join('')}
+      <span class="chip src" style="margin-left:auto">Searching Amadeus \u00b7 Travelport \u00b7 TBO \u00b7 NDC</span>
+    </div>
+    <div class="fields">
+      ${apField('from')}
+      <button class="swap" data-act="swap" title="Swap origin and destination" aria-label="Swap origin and destination">${I.swap}</button>
+      ${apField('to')}
+      <div class="field"><label for="dep">Depart</label><input id="dep" type="date" value="${t.dep}" data-act="trip" data-k="dep"><div class="sub">${fmtDate(t.dep)}</div></div>
+      <div class="field"><label for="ret">Return</label><input id="ret" type="date" value="${t.ret}" data-act="trip" data-k="ret"${t.type === 'oneway' ? ' disabled' : ''}><div class="sub">${t.type === 'oneway' ? 'One way' : fmtDate(t.ret)}</div></div>
+      <div class="field"><label for="pax">Travellers &amp; cabin</label>
+        <select id="pax" data-act="trip" data-k="adt">${[1,2,3,4,5,6].map(n => `<option value="${n}"${t.adt === n ? ' selected' : ''}>${n} adult${n > 1 ? 's' : ''}</option>`).join('')}</select>
+        <div class="sub">${esc(t.cabin)} \u00b7 ${t.chd} child</div>
+      </div>
+      <button class="btn btn-pri go" data-act="searchFlights">${I.search}<span>Search</span></button>
+    </div>`;
+  const hotelForm = `
+    <div class="triptype"><span class="chip src">Hotelbeds \u00b7 TBO static content \u00b7 62 properties in ${esc(state.hotelCity)}</span></div>
+    <div class="fields" style="grid-template-columns:1.6fr .9fr .9fr 1fr auto">
+      <div class="field"><label for="hc">Destination</label><select id="hc" data-act="trip" data-k="hotelCity"><option>Dubai</option><option>Singapore</option><option>Bangkok</option><option>London</option></select><div class="sub">City, area or property name</div></div>
+      <div class="field"><label for="ci">Check in</label><input id="ci" type="date" value="2026-10-14"><div class="sub">${fmtDate('2026-10-14')}</div></div>
+      <div class="field"><label for="co">Check out</label><input id="co" type="date" value="2026-10-18"><div class="sub">4 nights</div></div>
+      <div class="field"><label for="ro">Rooms &amp; guests</label><select id="ro"><option>1 room \u00b7 2 adults</option><option>2 rooms \u00b7 4 adults</option><option>1 room \u00b7 2 adults, 1 child</option></select><div class="sub">Age of children at check-in</div></div>
+      <button class="btn btn-pri go" data-act="searchHotels">${I.search}<span>Search</span></button>
+    </div>`;
+  const packForm = `
+    <div class="triptype"><span class="chip src">Contracted packages \u00b7 in-house operations</span></div>
+    <div class="fields" style="grid-template-columns:1.6fr 1fr 1fr 1fr auto">
+      <div class="field"><label for="pd">Destination</label><select id="pd"><option>Any destination</option>${PACKAGES.map(p => `<option>${esc(p.dest)}</option>`).join('')}</select><div class="sub">6 packages live</div></div>
+      <div class="field"><label for="pm">Month</label><select id="pm"><option>October 2026</option><option>November 2026</option><option>December 2026</option></select><div class="sub">Departure month</div></div>
+      <div class="field"><label for="pn">Duration</label><select id="pn"><option>Any</option><option>3-4 nights</option><option>5-6 nights</option><option>7+ nights</option></select><div class="sub">Nights on tour</div></div>
+      <div class="field"><label for="pb">Budget per person</label><select id="pb"><option>Any</option><option>Under $500</option><option>$500 - $1,200</option><option>$1,200+</option></select><div class="sub">Excludes visa fees</div></div>
+      <button class="btn btn-pri go" data-act="tab" data-tab="packages">${I.search}<span>Browse</span></button>
+    </div>`;
+  return `
+  <section class="band">${BAND_ART}<div class="wrap">
+    <h1>One engine. <em>Every</em> source of supply.</h1>
+    <p class="band-sub">Live air, hotel and package inventory from Amadeus, Travelport, TBO and direct NDC connections - priced, marked up and ticketed through a single booking flow for retail customers and sub-agents alike.</p>
+    <div class="band-stats">
+      <div><b>4</b><span>Supply sources</span></div>
+      <div><b>3</b><span>Payment gateways</span></div>
+      <div><b>&lt;900ms</b><span>Median search</span></div>
+      <div><b>2-way</b><span>CRM sync</span></div>
+    </div>
+  </div></section>
+  <div class="wrap">
+    <div class="searchcard">
+      <div class="seg" role="group" aria-label="Product">
+        ${segs.map(([k, l, ic]) => `<button data-act="stab" data-stab="${k}" aria-pressed="${stab === k}">${ic}<span>${l}</span></button>`).join('')}
+      </div>
+      <div class="sform">${stab === 'flights' ? flightForm : stab === 'hotels' ? hotelForm : packForm}</div>
+    </div>
+  </div>
+  <div class="wrap">
+    <section class="sec">
+      <div class="panel local">
+        <div class="local-copy">
+          <span class="eyebrow">Your branch</span>
+          <h2>Wayfare Travel, Brampton</h2>
+          <p>Walk-in counter at the Four Corners, open seven days. Every booking made here - web, app or agent desk - is serviced by the Brampton team.</p>
+          <div class="addr">
+            <div><b>24 Queen Street East</b><span>Brampton, ON&nbsp; L6V 1A3</span></div>
+            <div><b>+1 905 555 0142</b><span>Mon-Sat 9:00-19:00 \u00b7 Sun 11:00-17:00</span></div>
+          </div>
+          <div class="row" style="flex-wrap:wrap">
+            <span class="chip good">22 min to Pearson T1</span>
+            <span class="chip">TICO licence no. goes here</span>
+            <span class="chip">English \u00b7 French \u00b7 Spanish \u00b7 Dutch</span>
+          </div>
+        </div>
+        <div class="local-shots">
+          <div class="shot big"><img src="img/br1.jpg" alt="Rose Theatre, downtown Brampton" loading="lazy" decoding="async"><span class="sv"></span><span class="code">ROSE THEATRE \u00b7 DOWNTOWN BRAMPTON</span></div>
+          <div class="shot"><img src="img/br2.jpg" alt="Brampton City Hall" loading="lazy" decoding="async"><span class="sv"></span><span class="code">CITY HALL</span></div>
+          <div class="shot"><img src="img/br3.jpg" alt="Gage Park, Brampton" loading="lazy" decoding="async"><span class="sv"></span><span class="code">GAGE PARK</span></div>
+          <div class="shot"><img src="img/br4.jpg" alt="Toronto Pearson Terminal 1" loading="lazy" decoding="async"><span class="sv"></span><span class="code">PEARSON T1</span></div>
+        </div>
+      </div>
+    </section>
+    <section class="sec">
+      <div class="sec-h"><div><span class="eyebrow">Live fares from ${esc(AP[state.trip.from].c)}</span><h2>Where people are flying</h2>
+        <p>Cheapest published fare on each sector, refreshed from the cache every 15 minutes. Tap one to run a live search.</p></div></div>
+      <div class="dstrip">${DESTS.filter(d => d.ap !== state.trip.from).map(d => `
+        <button class="dtile" data-act="dest" data-ap="${d.ap}">
+          <img src="${d.img}" alt="${esc(d.c)}" loading="lazy" decoding="async">
+          <span class="veil"></span>
+          <span class="cap"><span class="ap">${state.trip.from} \u2192 ${d.ap}</span><b>${esc(d.c)}</b>
+            <span class="pr">from ${money(sell(routeFrom(d.ap)))}</span></span>
+        </button>`).join('')}</div>
+    </section>
+    <section class="sec">
+      <div class="sec-h"><div><span class="eyebrow">Contracted inventory</span><h2>Travel packages</h2><p>Margin-controlled product the agency owns end to end - not resold third-party tours.</p></div>
+        <button class="btn btn-out btn-sm" data-act="tab" data-tab="packages">All 6 packages</button></div>
+      <div class="grid3">${PACKAGES.filter(p => !state.pkgPub || state.pkgPub[p.id] !== false).slice(0, 3).map(pkgCard).join('')}</div>
+    </section>
+    <section class="sec">
+      <div class="sec-h"><div><span class="eyebrow">Verified after travel</span><h2>What travellers said</h2><p>Reviews are tied to a real booking reference and can only be left once the return sector has flown.</p></div>
+        <button class="btn btn-out btn-sm" data-act="tab" data-tab="reviews">All ${REVIEWS.length} reviews</button></div>
+      <div class="panel"><div class="panel-b">${reviewSummary()}</div></div>
+    </section>
+  </div>`;
+}
+
+/* flight results */
+function markupBar(label){
+  if(state.mode !== 'agent') return '';
+  const m = state.markup;
+  return `<div class="panel" style="border-color:var(--b2b-line);background:linear-gradient(120deg,var(--b2b-soft),var(--surface));margin-bottom:12px">
+    <div class="panel-b" style="display:flex;gap:18px;align-items:center;flex-wrap:wrap">
+      <div><span class="eyebrow" style="color:var(--b2b)">Live markup engine</span>
+        <div style="font-size:13px;font-weight:600;margin-top:2px">${label || 'Applied to all ' + visibleOffers().length + ' fares below'}</div></div>
+      <div class="pillrow">
+        <button class="pill" data-act="mkType" data-t="pct" aria-pressed="${m.type === 'pct'}">Percentage</button>
+        <button class="pill" data-act="mkType" data-t="flat" aria-pressed="${m.type === 'flat'}">Flat fee</button>
+      </div>
+      <div class="grow" style="min-width:180px">
+        <input type="range" min="0" max="${m.type === 'pct' ? 25 : 250}" step="${m.type === 'pct' ? 0.5 : 5}" value="${m.v}" data-act="mkVal" aria-label="Markup value">
+        <div class="between" style="font-size:11px;color:var(--text-2);margin-top:2px"><span>0</span><span>${m.type === 'pct' ? '25%' : money(250)}</span></div>
+      </div>
+      <div style="text-align:right"><span class="eyebrow">Your markup</span>
+        <div id="mkOut" style="font-family:var(--disp);font-size:24px;font-weight:700;letter-spacing:-.03em;color:var(--b2b)">${m.type === 'pct' ? m.v + '%' : money(m.v)}</div></div>
+    </div></div>`;
+}
+function filterRail(){
+  const f = state.filters;
+  const alCounts = {}; state.results.forEach(o => alCounts[o.al.code] = (alCounts[o.al.code] || 0) + 1);
+  const lo = Math.min(...state.results.map(o => o.net)), hi = Math.max(...state.results.map(o => o.net));
+  const cur = f.maxPrice == null ? hi : f.maxPrice;
+  return `<aside class="panel rail">
+    <div class="panel-h"><h3>Filters</h3><button class="btn btn-sm btn-out" data-act="clearF">Clear</button></div>
+    <div class="fgrp"><span class="eyebrow">Stops</span><div class="pillrow">
+      ${[['any','Any'],['0','Non-stop'],['1','1 stop']].map(([v, l]) => `<button class="pill" data-act="fStops" data-v="${v}" aria-pressed="${f.stops === v}">${l}</button>`).join('')}
+    </div></div>
+    <div class="fgrp"><span class="eyebrow">Departure window</span><div class="pillrow">
+      ${[['any','Any'],['am','05-12'],['pm','12-18'],['eve','18-05']].map(([v, l]) => `<button class="pill" data-act="fDep" data-v="${v}" aria-pressed="${f.dep === v}">${l}</button>`).join('')}
+    </div></div>
+    <div class="fgrp"><span class="eyebrow">Max fare \u00b7 <span id="fpOut">${money(cur)}</span></span>
+      <input type="range" min="${lo}" max="${hi}" step="100" value="${cur}" data-act="fPrice" aria-label="Maximum fare">
+      <div class="between" style="font-size:11px;color:var(--text-3)"><span>${money(lo)}</span><span>${money(hi)}</span></div>
+    </div>
+    <div class="fgrp"><span class="eyebrow">Airline</span>
+      ${Object.keys(alCounts).map(c => {
+        const al = AIRLINES.find(a => a.code === c);
+        return `<label class="check"><input type="checkbox" data-act="fAl" data-v="${c}"${f.als.includes(c) ? ' checked' : ''}><span>${esc(al.name)}</span><span class="c">${alCounts[c]}</span></label>`;
+      }).join('')}
+    </div>
+    <div class="fgrp"><span class="eyebrow">Supply source</span>
+      ${SUPPLIERS.map(s => {
+        const n = state.results.filter(o => o.sup === s).length;
+        return n ? `<label class="check"><input type="checkbox" data-act="fSup" data-v="${s}"${f.sups.includes(s) ? ' checked' : ''}><span>${s}</span><span class="c">${n}</span></label>` : '';
+      }).join('')}
+    </div>
+  </aside>`;
+}
+function offerCard(o){
+  const open = state.openCard === o.id;
+  const price = sell(o.net);
+  return `<article class="fcard${open ? ' open' : ''}">
+    <div class="fcard-main">
+      <div class="al"><span class="al-mark" style="background:${o.al.bg}">${o.al.code}</span>
+        <span class="grow"><span class="al-name">${esc(o.al.name)}</span><span class="al-no mono">${o.no} \u00b7 ${o.rbd}</span></span></div>
+      <div class="route">
+        <div class="tpoint"><b>${hhmm(o.dep)}</b><span>${state.trip.from}</span></div>
+        <div class="line"><div class="dur">${dur(o.mins)}</div><div class="bar">${o.stops ? '<span class="stop"></span>' : ''}</div>
+          <div class="stops${o.stops ? '' : ' ns'}">${o.stops ? o.via + ' \u00b7 ' + dur(o.layover) + ' layover' : 'Non-stop'}</div></div>
+        <div class="tpoint r"><b>${hhmm(o.arr)}${o.plus ? '<sup>+' + o.plus + '</sup>' : ''}</b><span>${state.trip.to}</span></div>
+      </div>
+      <div class="fprice">
+        <div><div class="amt">${money(price)}</div>
+          <div class="per">per adult${state.mode === 'agent' ? ' \u00b7 net ' + money(o.net) : ''}</div>
+          ${state.mode === 'agent' ? `<div class="per" style="color:var(--b2b);font-weight:600">You earn ${money(margin(o.net) * paxCount())}</div>` : ''}</div>
+        <button class="btn ${state.mode === 'agent' ? 'btn-b2b' : 'btn-pri'} btn-sm" data-act="openFares" data-id="${o.id}">${open ? 'Hide fares' : 'View fares'}</button>
+      </div>
+    </div>
+    <div class="fmeta">
+      <span class="chip src">${o.sup}</span>
+      <span class="chip">${esc(o.craft)}</span>
+      <span class="chip good">${o.onTime}% on time</span>
+      ${o.seats <= 4 ? `<span class="chip warn">Only ${o.seats} left at this fare</span>` : ''}
+      ${o.al.ndc ? '<span class="chip acc">NDC direct</span>' : ''}
+    </div>
+    <div class="fexp">
+      <div class="between" style="margin-bottom:11px"><span class="eyebrow">Fare families \u00b7 ${state.trip.cabin}</span><span class="chip src">Priced live \u00b7 held 20 min</span></div>
+      <div class="fares">${o.fares.map(f => `
+        <div class="fare${f.best ? ' best' : ''}">
+          <div class="fare-h"><b>${f.n}</b><span class="p">${money(sell(f.price))}</span></div>
+          <ul>
+            <li class="y">${I.check}${f.bag}</li>
+            <li class="y">${I.check}${f.cabin}</li>
+            <li class="${f.seat ? 'y' : 'n'}">${f.seat ? I.check : I.x}Seat selection</li>
+            <li class="${f.meal ? 'y' : 'n'}">${f.meal ? I.check : I.x}Meal included</li>
+            <li class="${f.refund ? 'y' : 'n'}">${f.refund ? I.check : I.x}${f.refund ? 'Refundable' : 'Non-refundable'}</li>
+            <li class="${f.refund ? 'y' : 'n'}">${f.refund ? I.check : I.x}Change: ${f.chg}</li>
+          </ul>
+          <button class="btn ${state.mode === 'agent' ? 'btn-b2b' : 'btn-pri'} btn-sm" style="width:100%" data-act="selFare" data-id="${o.id}" data-f="${f.k}">Select ${f.n}</button>
+        </div>`).join('')}</div>
+    </div>
+  </article>`;
+}
+function viewFlights(){
+  const list = visibleOffers();
+  return `<div class="wrap"><section class="sec">
+    <div class="panel" style="margin-bottom:16px"><div class="panel-b between">
+      <div class="row" style="flex-wrap:wrap;gap:14px">
+        <div><span class="eyebrow">Route</span><div style="font-family:var(--disp);font-size:18px;font-weight:700;letter-spacing:-.02em">${AP[state.trip.from].c} <span style="color:var(--accent)">\u2192</span> ${AP[state.trip.to].c}</div></div>
+        <div style="border-left:1px solid var(--line);padding-left:14px"><span class="eyebrow">Departure</span><div style="font-weight:600">${fmtDate(state.trip.dep)}</div></div>
+        <div style="border-left:1px solid var(--line);padding-left:14px"><span class="eyebrow">Travellers</span><div style="font-weight:600">${state.trip.adt} adult${state.trip.adt > 1 ? 's' : ''} \u00b7 ${esc(state.trip.cabin)}</div></div>
+      </div>
+      <button class="btn btn-out btn-sm" data-act="tab" data-tab="search">Modify search</button>
+    </div></div>
+    ${markupBar()}
+    <div class="split">
+      ${filterRail()}
+      <div>
+        <div class="sortbar"><span class="eyebrow">Sort</span>
+          ${[['best','Best value'],['price','Cheapest'],['dur','Fastest'],['dep','Earliest']].map(([v, l]) => `<button class="pill" data-act="sort" data-v="${v}" aria-pressed="${state.sort === v}">${l}</button>`).join('')}
+          <span class="dim" style="margin-left:auto;font-size:12px">${list.length} of ${state.results.length} offers</span></div>
+        ${list.length ? `<div class="stack">${list.map(offerCard).join('')}</div>`
+          : `<div class="panel"><div class="empty"><b>No fares match those filters.</b><p style="margin-top:6px">Widen the fare ceiling or clear the airline filter to see all ${state.results.length} offers.</p><button class="btn btn-out btn-sm" style="margin-top:14px" data-act="clearF">Clear filters</button></div></div>`}
+      </div>
+    </div>
+  </section></div>`;
+}
+
+/* hotels */
+function viewHotels(){
+  return `<div class="wrap"><section class="sec">
+    <div class="sec-h"><div><span class="eyebrow">Hotelbeds \u00b7 TBO</span><h2>Stays in ${esc(state.hotelCity)}</h2><p>Net rates from two suppliers, deduplicated on property ID so the same hotel never appears twice at different prices.</p></div>
+      <button class="btn btn-out btn-sm" data-act="tab" data-tab="search">Modify search</button></div>
+    ${markupBar('Applied to all ' + HOTELS.length + ' room rates below')}
+    <div class="stack">${HOTELS.map(h => `
+      <article class="fcard"><div class="fcard-main" style="grid-template-columns:200px 1fr 176px">
+        <div class="hgal">
+          <div class="plate" style="--p1:${h.p[0]};--p2:${h.p[1]};--p3:${h.p[2]}">
+            <img src="${h.img}" alt="${esc(h.area)}, ${esc(h.city)}" loading="lazy" decoding="async">
+            <span class="scrim"></span><span class="code">${esc(h.area).toUpperCase()}</span></div>
+          <div class="plate sm" style="--p1:${h.p[1]};--p2:${h.p[2]};--p3:${h.p[2]}">
+            <img src="${h.img2}" alt="Inside ${esc(h.n)}" loading="lazy" decoding="async"></div>
+        </div>
+        <div>
+          <div class="row" style="flex-wrap:wrap"><h3 style="font-size:16px">${esc(h.n)}</h3>${stars(h.star)}</div>
+          <p class="muted" style="font-size:12.5px;margin-top:3px">${esc(h.area)} \u00b7 ${esc(h.city)}</p>
+          <div class="row" style="margin-top:9px;flex-wrap:wrap">
+            <span class="chip good"><b>${h.score}</b> ${h.score >= 9 ? 'Exceptional' : 'Very good'}</span>
+            <span class="dim" style="font-size:12px">${h.rev.toLocaleString('en-IN')} verified reviews</span></div>
+          <div style="margin-top:10px;font-size:13px"><b>${esc(h.room)}</b><div class="muted" style="font-size:12.5px">${esc(h.board)}</div></div>
+          <div class="row" style="margin-top:9px;flex-wrap:wrap">
+            ${h.tags.map(t => `<span class="chip">${esc(t)}</span>`).join('')}
+            <span class="chip src">${h.sup}</span>
+            <span class="chip ${h.free ? 'good' : 'bad'}">${h.free ? 'Free cancellation to 48h' : 'Non-refundable'}</span></div>
+        </div>
+        <div class="fprice"><div>
+          <div class="amt">${money(sell(h.rate))}</div><div class="per">per night \u00b7 excl. taxes</div>
+          <div class="per">${money(sell(h.rate) * 4)} for 4 nights</div>
+          ${state.mode === 'agent' ? `<div class="per" style="color:var(--b2b);font-weight:600">You earn ${money(margin(h.rate) * 4)}</div>` : ''}</div>
+          <button class="btn ${state.mode === 'agent' ? 'btn-b2b' : 'btn-pri'} btn-sm" data-act="selHotel" data-id="${h.id}">Select room</button></div>
+      </div></article>`).join('')}</div>
+  </section></div>`;
+}
+
+/* quote */
+const ADDONS = [
+  {k:'seat', n:'Seat selection',        d:'Pick your seat now instead of at check-in', p:34},
+  {k:'bag',  n:'Second checked bag',    d:'Cheaper pre-paid than at the airport desk', p:58},
+  {k:'ins',  n:'Trip protection',       d:'Cancellation, delay and medical cover',     p:79},
+  {k:'meal', n:'Pre-booked meal',       d:'Hot meal on board, dietary options',        p:26}
+];
+function quote(){
+  const s = state.sel;
+  if(!s) return null;
+  const pax = paxCount();
+  const lines = [];
+  let base, label;
+  if(s.kind === 'air'){
+    base = s.fare.price * pax;
+    label = `${s.fare.n} fare \u00d7 ${pax} traveller${pax > 1 ? 's' : ''}`;
+  } else {
+    base = s.hotel.rate * s.nights;
+    label = `Room rate \u00d7 ${s.nights} nights`;
+  }
+  lines.push([label, base]);
+  const air = s.kind === 'air';
+  const yq = air ? Math.round(base * 0.18) : 0;
+  if(yq) lines.push(['Carrier surcharges (YQ/YR)', yq]);
+  const govt = air ? Math.round((base + yq) * 0.09) : Math.round(base * 0.14);
+  lines.push([air ? 'Government taxes (GST/HST, transportation)' : 'Lodging tax + municipal levy (14%)', govt]);
+  const atsc = air ? 20 * pax : 0;
+  if(atsc) lines.push(['Air Travellers Security Charge', atsc]);
+  const aif = air ? 35 * pax : 0;
+  if(aif) lines.push(['Airport improvement fee', aif]);
+  let addon = 0;
+  ADDONS.forEach(a => {
+    if(state.addons[a.k]){
+      const amt = a.k === 'ins' ? a.p * pax : a.p;
+      addon += amt; lines.push([a.n, amt]);
+    }
+  });
+  const conv = 15;
+  lines.push(['Booking fee', conv]);
+  const net = base + yq + govt + atsc + aif + addon + conv;
+  const mk = state.mode === 'agent' ? (state.markup.type === 'pct' ? Math.round((base + yq) * state.markup.v / 100) : state.markup.v) : 0;
+  return {lines, net, mk, total: net + mk};
+}
+
+/* checkout */
+const GATEWAYS = [
+  {k:'stripe',   n:'Stripe',   d:'Cards \u00b7 Apple Pay \u00b7 Google Pay', fee:'2.9% + $0.30'},
+  {k:'moneris',  n:'Moneris',  d:'Canadian acquiring \u00b7 Interac',   fee:'2.4% + $0.25'},
+  {k:'paypal',   n:'PayPal',   d:'Express checkout \u00b7 buyer cover', fee:'3.4% + $0.30'},
+  {k:'wallet',   n:'Agent wallet', d:'Credit line \u00b7 instant ticketing', fee:'No gateway fee', b2b:true}
+];
+function viewCheckout(){
+  const s = state.sel, q = quote();
+  if(!s) return `<div class="wrap"><div class="panel" style="margin-top:32px"><div class="empty">Nothing selected yet. <button class="btn btn-out btn-sm" data-act="tab" data-tab="search">Start a search</button></div></div></div>`;
+  const gws = GATEWAYS.filter(g => !g.b2b || state.mode === 'agent');
+  const head = s.kind === 'air'
+    ? `<div class="row" style="flex-wrap:wrap;gap:12px">
+         <span class="al-mark" style="background:${s.offer.al.bg}">${s.offer.al.code}</span>
+         <div class="grow"><b style="font-size:14px">${esc(s.offer.al.name)} ${s.offer.no}</b>
+           <div class="muted" style="font-size:12.5px">${AP[state.trip.from].c} ${hhmm(s.offer.dep)} \u2192 ${AP[state.trip.to].c} ${hhmm(s.offer.arr)} \u00b7 ${dur(s.offer.mins)} \u00b7 ${s.offer.stops ? '1 stop ' + s.offer.via : 'Non-stop'}</div></div>
+         <span class="chip acc">${s.fare.n}</span><span class="chip src">${s.offer.sup}</span></div>`
+    : `<div class="row" style="flex-wrap:wrap;gap:12px"><div class="grow"><b style="font-size:14px">${esc(s.hotel.n)}</b>
+         <div class="muted" style="font-size:12.5px">${esc(s.hotel.room)} \u00b7 ${s.nights} nights \u00b7 ${esc(s.hotel.board)}</div></div>
+         <span class="chip src">${s.hotel.sup}</span></div>`;
+  return `<div class="wrap"><section class="sec">
+    <div class="sec-h"><div><span class="eyebrow">Step 2 of 3 \u00b7 fare held for 19:42</span><h2>Review and pay</h2></div>
+      <button class="btn btn-out btn-sm" data-act="back">Back to results</button></div>
+    <div class="co">
+      <div class="stack">
+        <div class="panel"><div class="panel-b">${head}</div></div>
+        <div class="panel"><div class="panel-h"><h3>Traveller 1 \u00b7 Adult</h3><span class="chip">Must match passport</span></div>
+          <div class="panel-b stack">
+            <div class="frow">
+              <label class="inp"><span>Title</span><select><option>Mr</option><option>Ms</option><option>Mrs</option><option>Dr</option></select></label>
+              <label class="inp"><span>Given name</span><input value="Navdeep" autocomplete="given-name"></label>
+              <label class="inp"><span>Surname</span><input value="Singh" autocomplete="family-name"></label>
+            </div>
+            <div class="frow">
+              <label class="inp"><span>Date of birth</span><input type="date" value="1991-04-22"></label>
+              <label class="inp"><span>Nationality</span><select><option>Canada</option><option>United States</option><option>United Kingdom</option><option>France</option></select></label>
+              <label class="inp"><span>Passport number</span><input value="Z4471882" class="mono"></label>
+              <label class="inp"><span>Passport expiry</span><input type="date" value="2031-08-14"></label>
+            </div>
+            <div class="frow">
+              <label class="inp"><span>Email for e-ticket</span><input type="email" value="navdeep.singh@example.com"></label>
+              <label class="inp"><span>Mobile \u00b7 WhatsApp</span><input value="+1 905 555 0142" class="mono"></label>
+              <label class="inp"><span>Frequent flyer</span><input placeholder="Optional" class="mono"></label>
+            </div>
+            <div class="securebar">${I.shield}<span>Passport details are tokenised before they reach the GDS. Nothing sensitive is stored in the booking record.</span></div>
+          </div></div>
+        <div class="panel"><div class="panel-h"><h3>Add-ons</h3><span class="chip">Priced per booking unless marked</span></div>
+          <div class="panel-b"><div class="frow">${ADDONS.map(a => `
+            <label class="addon${state.addons[a.k] ? ' on' : ''}"><input type="checkbox" data-act="addon" data-k="${a.k}"${state.addons[a.k] ? ' checked' : ''}>
+              <span class="grow"><b>${a.n}</b><small>${a.d}</small></span>
+              <b class="num">${money(a.k === 'ins' ? a.p * paxCount() : a.p)}</b></label>`).join('')}</div></div></div>
+        <div class="panel"><div class="panel-h"><h3>Payment</h3><span class="chip warn">Test mode \u00b7 no live charge</span></div>
+          <div class="panel-b stack">
+            <div class="gw">${gws.map(g => `<button class="gwo" data-act="gw" data-k="${g.k}" aria-pressed="${state.gw === g.k}"><b>${g.n}</b><small>${g.d}</small><small style="color:var(--text-3)">${g.fee}</small></button>`).join('')}</div>
+            ${state.gw === 'wallet' ? `<div class="panel" style="box-shadow:none;background:var(--b2b-soft);border-color:var(--b2b-line)"><div class="panel-b">
+                <div class="between"><span style="font-weight:600">Wallet balance</span><b class="num" style="color:var(--b2b)">${money(62500)}</b></div>
+                <div class="between" style="margin-top:6px;font-size:12.5px"><span class="muted">Credit line used</span><span class="num muted">${money(38000)} of ${money(95000)}</span></div>
+                <div class="meter"><i style="width:39%"></i></div>
+                <p class="muted" style="font-size:12px;margin-top:9px">Ticketing is instant against wallet. Settlement runs on a 7-day cycle.</p></div></div>`
+              : `<div class="frow">
+                  <label class="inp" style="grid-column:span 2"><span>Card number</span><input value="4111 1111 1111 1111" class="mono" inputmode="numeric"></label>
+                  <label class="inp"><span>Expiry</span><input value="04 / 29" class="mono"></label>
+                  <label class="inp"><span>CVV</span><input value="\u2022\u2022\u2022" class="mono"></label>
+                </div>
+                <p class="dim" style="font-size:11.5px">Card 4111 1111 1111 1111 is the gateway sandbox test number. The redirect below simulates a 3D Secure challenge and returns a signed webhook.</p>`}
+            <label class="check" style="font-size:12.5px"><input type="checkbox" checked><span>I accept the fare rules, baggage policy and cancellation terms shown above.</span></label>
+          </div></div>
+      </div>
+      <aside class="panel rail"><div class="panel-h"><h3>Fare breakdown</h3><span class="chip src">${state.cur}</span></div>
+        <div class="panel-b">
+          <div class="kv">
+            ${q.lines.map(([l, v]) => `<div><span>${esc(l)}</span><b>${money(v)}</b></div>`).join('')}
+            ${q.mk ? `<div class="cr"><span>Agent markup (${state.markup.type === 'pct' ? state.markup.v + '%' : 'flat'})</span><b>+ ${money(q.mk)}</b></div>` : ''}
+            <div class="tot"><span>${state.mode === 'agent' ? 'Customer pays' : 'Total payable'}</span><b>${money(q.total)}</b></div>
+            ${q.mk ? `<div class="cr"><span>Your margin on this booking</span><b>${money(q.mk)}</b></div>` : ''}
+          </div>
+          <button class="btn ${state.mode === 'agent' ? 'btn-b2b' : 'btn-pri'} btn-lg" style="width:100%;margin-top:14px" data-act="pay">
+            ${state.gw === 'wallet' ? 'Ticket against wallet' : 'Pay ' + money(q.total)}</button>
+          <div class="securebar" style="margin-top:10px">${I.shield}<span>PCI-DSS SAQ-A \u00b7 card data never touches the platform</span></div>
+          <p class="dim" style="font-size:11.5px;margin-top:10px">On capture the platform creates the PNR, issues the e-ticket, pushes the deal to Zoho CRM and sends the itinerary over WhatsApp.</p>
+        </div></aside>
+    </div>
+  </section></div>`;
+}
+
+/* confirmation */
+function makePNR(){ const a = 'ABCDEFGHJKLMNPQRSTUVWXYZ123456789'; let s = ''; for(let i=0;i<6;i++) s += a[Math.floor(Math.random()*a.length)]; return s; }
+function barcode(seed){
+  const rnd = rngOf(hash(seed));
+  let out = '';
+  for(let i=0;i<64;i++) out += `<i style="height:${60 + Math.floor(rnd()*40)}%;width:${rnd() < 0.3 ? 3 : 2}px"></i>`;
+  return `<div class="barcode" aria-hidden="true">${out}</div>`;
+}
+function viewConfirm(){
+  const b = state.booking;
+  if(!b) return `<div class="wrap"><div class="panel" style="margin-top:32px"><div class="empty">No booking in this session.</div></div></div>`;
+  const air = b.kind === 'air';
+  return `<div class="wrap"><section class="sec" style="max-width:820px;margin:0 auto">
+    <div class="row" style="margin-bottom:16px"><span class="chip good"><span class="dot"></span>Payment captured</span>
+      <span class="chip good"><span class="dot"></span>${air ? 'PNR created' : 'Voucher issued'}</span>
+      <span class="chip good"><span class="dot"></span>CRM synced</span>
+      <span class="chip good"><span class="dot"></span>WhatsApp sent</span></div>
+    <div class="ticket">
+      <div class="ticket-top">
+        <div><span class="eyebrow" style="color:var(--band-dim)">${air ? 'Airline booking reference' : 'Hotel voucher reference'}</span>
+          <div class="pnr">${b.pnr}</div>
+          <div class="mono" style="font-size:11.5px;color:var(--band-dim);margin-top:4px">Wayfare ref ${b.ref}</div></div>
+        ${barcode(b.pnr)}
+      </div>
+      <div class="perf"></div>
+      <div class="panel-b" style="padding:20px">
+        ${air ? `<div class="route" style="margin-bottom:18px">
+          <div class="tpoint"><b>${hhmm(b.o.dep)}</b><span>${state.trip.from} \u00b7 ${esc(AP[state.trip.from].c)}</span></div>
+          <div class="line"><div class="dur">${dur(b.o.mins)}</div><div class="bar">${b.o.stops ? '<span class="stop"></span>' : ''}</div>
+            <div class="stops${b.o.stops ? '' : ' ns'}">${b.o.stops ? b.o.via : 'Non-stop'}</div></div>
+          <div class="tpoint r"><b>${hhmm(b.o.arr)}${b.o.plus ? '<sup>+' + b.o.plus + '</sup>' : ''}</b><span>${state.trip.to} \u00b7 ${esc(AP[state.trip.to].c)}</span></div>
+        </div>` : `<div style="margin-bottom:18px"><b style="font-size:16px;font-family:var(--disp)">${esc(b.h.n)}</b><div class="muted">${esc(b.h.room)} \u00b7 ${b.nights} nights \u00b7 ${esc(b.h.board)}</div></div>`}
+        <div class="tbl-wrap"><table><tbody>
+          <tr><td class="muted">Passenger</td><td><b>SINGH / NAVDEEP MR</b></td><td class="muted">Ticket number</td><td class="mono">${b.etkt}</td></tr>
+          ${air ? `<tr><td class="muted">Flight</td><td><b>${b.o.al.code} ${b.o.no.split(' ')[1]}</b> \u00b7 ${esc(b.o.craft)}</td><td class="muted">Booking class</td><td class="mono">${b.o.rbd} \u00b7 ${esc(b.fare.n)}</td></tr>` : ''}
+          <tr><td class="muted">Baggage</td><td>${air ? esc(b.fare.bag) + ' \u00b7 ' + esc(b.fare.cabin) : 'n/a'}</td><td class="muted">Ticketing deadline</td><td class="mono">${b.ttl}</td></tr>
+          <tr><td class="muted">Amount paid</td><td><b>${money(b.total)}</b></td><td class="muted">Method</td><td>${esc(b.gw)} \u00b7 ${b.txn}</td></tr>
+        </tbody></table></div>
+      </div>
+      <div class="panel-b" style="border-top:1px solid var(--line);background:var(--surface-2)">
+        <span class="eyebrow">Integration events fired on capture</span>
+        <div class="log" style="margin-top:10px">${[
+          ['ok', 'payment.captured', `${b.txn} \u00b7 ${esc(b.gw)} \u00b7 signature verified`],
+          ['ok', air ? 'order.create' : 'hotel.book', `${b.sup} \u00b7 ${air ? 'PNR ' + b.pnr : 'voucher ' + b.pnr} \u00b7 confirmed`],
+          ['ok', 'zoho.deal.update', `deal ${4800000 + Math.floor(Math.random()*90000)} \u00b7 stage Booked`],
+          ['ok', 'whatsapp.send', 'template itinerary_v3 \u00b7 delivered'],
+          ['ok', 'email.send', 'e-ticket PDF attached \u00b7 queued']
+        ].map(([k, ev, d]) => `<span class="t">${b.clock}</span>  <span class="${k}">\u25cf</span> <b>${ev}</b>  ${d}`).join('\n')}</div>
+      </div>
+    </div>
+    <div class="row" style="margin-top:18px;flex-wrap:wrap">
+      <button class="btn btn-pri" data-act="tab" data-tab="search">Book another trip</button>
+      <button class="btn btn-out" data-act="toastOnly" data-msg="E-ticket PDF queued to navdeep.singh@example.com">Email e-ticket</button>
+      <button class="btn btn-out" data-act="toastOnly" data-msg="Itinerary re-sent on WhatsApp to +1 905 555 0142">Resend on WhatsApp</button>
+      ${state.mode === 'agent' ? `<button class="btn btn-out" data-act="tab" data-tab="bookings">View in agent desk</button>` : ''}
+    </div>
+  </section></div>`;
+}
+
+/* packages */
+function plate(p, tag){
+  return `<div class="plate" style="--p1:${p.p[0]};--p2:${p.p[1]};--p3:${p.p[2]}">
+    <img src="${p.img}" alt="${esc(p.dest)}" loading="lazy" decoding="async">
+    <span class="scrim"></span>
+    <span class="code">${p.code} \u00b7 ${p.nights}N / ${p.days}D</span>
+    ${tag ? `<span class="tagtop chip acc">${esc(p.cat)}</span>` : ''}</div>`;
+}
+function pkgCard(p){
+  const off = Math.round((1 - p.from / p.was) * 100);
+  return `<button class="pcard" data-act="pkg" data-id="${p.id}">
+    ${plate(p, true)}
+    <div class="pcard-b">
+      <div><span class="where">${esc(p.dest)}</span><h3>${esc(p.n)}</h3></div>
+      <div class="row">${stars(p.rating)}<span class="dim" style="font-size:12px">${p.rating} \u00b7 ${p.revs} reviews</span></div>
+      <div class="incl">${p.incl.slice(0, 3).map(i => `<span class="chip">${esc(i)}</span>`).join('')}${p.incl.length > 3 ? `<span class="chip">+${p.incl.length - 3} more</span>` : ''}</div>
+      <div class="foot">
+        <div><span class="eyebrow">From \u00b7 per person</span>
+          <div class="row" style="gap:7px"><span class="amt">${money(sell(p.from))}</span><span class="dim" style="font-size:12px;text-decoration:line-through">${money(p.was)}</span></div></div>
+        <span class="chip acc">${off}% off</span>
+      </div>
+    </div>
+  </button>`;
+}
+function viewPackages(){
+  return `<div class="wrap"><section class="sec">
+    <div class="sec-h"><div><span class="eyebrow">In-house product \u00b7 ${PACKAGES.length} live</span><h2>Travel packages</h2>
+      <p>Each package is a contracted rate the agency controls - flights sourced live at booking time, land arrangements held on allocation.</p></div>
+      <div class="pillrow">${['All','Bestseller','Honeymoon','Family','Premium','Short break'].map((c, i) => `<button class="pill" aria-pressed="${(state.pkgCat || 'All') === c}" data-act="pkgCat" data-v="${c}">${c}</button>`).join('')}</div></div>
+    ${markupBar('Applied to all ' + PACKAGES.length + ' package rates below')}
+    <div class="grid3">${PACKAGES.filter(p => (!state.pkgPub || state.pkgPub[p.id] !== false) && (!state.pkgCat || state.pkgCat === 'All' || p.cat === state.pkgCat)).map(pkgCard).join('')}</div>
+  </section></div>`;
+}
+function viewPackage(){
+  const p = PACKAGES.find(x => x.id === state.pkg);
+  if(!p) return viewPackages();
+  const pax = 2, total = sell(p.from) * pax;
+  return `<div class="wrap"><section class="sec">
+    <button class="btn btn-out btn-sm" data-act="tab" data-tab="packages" style="margin-bottom:16px">\u2190 All packages</button>
+    <div class="co">
+      <div class="stack">
+        <div class="panel" style="overflow:hidden">
+          <div class="gal">
+            <div class="gal-main"><img id="galMain" src="${p.g[0]}" alt="${esc(p.dest)}" decoding="async"></div>
+            <div class="gal-thumbs">${p.g.map((src, i) => `
+              <button class="gt" data-act="gal" data-src="${src}" aria-pressed="${i === 0}" aria-label="View photo ${i + 1}">
+                <img src="${src}" alt="" loading="lazy" decoding="async"></button>`).join('')}</div>
+          </div>
+          <div class="panel-b" style="padding-top:0">
+            <span class="where eyebrow">${esc(p.dest)} \u00b7 ${p.nights} nights / ${p.days} days</span>
+            <h2 style="font-size:26px;margin:5px 0 8px">${esc(p.n)}</h2>
+            <div class="row" style="flex-wrap:wrap">${stars(p.rating)}<span class="dim" style="font-size:12.5px">${p.rating} from ${p.revs} verified travellers</span></div>
+            <p class="muted" style="margin-top:12px;max-width:62ch">${esc(p.blurb)}</p>
+            <div class="row" style="flex-wrap:wrap;margin-top:14px">${p.incl.map(i => `<span class="chip good">${I.check}${esc(i)}</span>`).join('')}</div>
+          </div>
+        </div>
+        <div class="panel"><div class="panel-h"><h3>Day by day</h3><span class="chip src">${p.days} days \u00b7 ${p.itin.reduce((n, d) => n + d.a.length, 0)} inclusions</span></div>
+          <div class="panel-b"><div class="itin">${p.itin.map((d, i) => `
+            <div class="day"><div class="day-n">Day ${pad(i + 1, 2)}</div>
+              <div><h4>${esc(d.t)}</h4><p>${esc(d.d)}</p>
+                <div class="acts">${d.a.map(a => `<span class="chip">${esc(a)}</span>`).join('')}</div></div></div>`).join('')}</div></div></div>
+        <div class="panel"><div class="panel-h"><h3>Not included</h3></div><div class="panel-b">
+          <div class="row" style="flex-wrap:wrap">${['Visa fees','Travel insurance','Personal expenses','Anything not listed above','Peak-date surcharges'].map(x => `<span class="chip">${I.x}${x}</span>`).join('')}</div>
+          <p class="dim" style="font-size:12px;margin-top:11px">Cancellation: full refund to 30 days before departure, 50% to 15 days, non-refundable inside 15 days. Land portion is held on allocation and confirmed within 24 hours of booking.</p></div></div>
+      </div>
+      <aside class="panel rail"><div class="panel-h"><h3>Book this package</h3></div><div class="panel-b">
+        <div class="kv">
+          <div><span>Per person (twin share)</span><b>${money(sell(p.from))}</b></div>
+          <div><span>Travellers</span><b>2 adults</b></div>
+          ${state.mode === 'agent' ? `<div class="cr"><span>Your margin</span><b>${money(margin(p.from) * pax)}</b></div>` : ''}
+          <div class="tot"><span>Total</span><b>${money(total)}</b></div>
+        </div>
+        <label class="inp" style="margin-top:12px"><span>Departure date</span>
+          <select><option>14 Oct 2026 \u00b7 confirmed</option><option>21 Oct 2026 \u00b7 confirmed</option><option>04 Nov 2026 \u00b7 on request</option><option>18 Nov 2026 \u00b7 confirmed</option></select></label>
+        <button class="btn ${state.mode === 'agent' ? 'btn-b2b' : 'btn-pri'} btn-lg" style="width:100%;margin-top:12px" data-act="toastOnly" data-msg="Package held for 48 hours \u00b7 enquiry pushed to Zoho CRM as a new deal">Hold for 48 hours</button>
+        <button class="btn btn-out" style="width:100%;margin-top:8px" data-act="toastOnly" data-msg="Quote PDF generated and sent on WhatsApp">Send quote on WhatsApp</button>
+        <p class="dim" style="font-size:11.5px;margin-top:11px">Holding creates a CRM deal at the <b>Hold / option</b> stage and schedules a follow-up task for the assigned agent.</p>
+      </div></aside>
+    </div>
+  </section></div>`;
+}
+
+/* reviews */
+function reviewStats(){
+  const dist = [0, 0, 0, 0, 0];
+  REVIEWS.forEach(r => dist[r.r - 1]++);
+  const avg = (REVIEWS.reduce((s, r) => s + r.r, 0) / REVIEWS.length);
+  return {dist, avg};
+}
+function reviewSummary(){
+  const {dist, avg} = reviewStats();
+  return `<div class="rev-top">
+    <div class="score"><b>${avg.toFixed(1)}</b>${stars(avg)}
+      <div class="dim" style="font-size:12px;margin-top:6px">${REVIEWS.length} verified reviews</div></div>
+    <div class="bars">${[5,4,3,2,1].map(n => {
+      const c = dist[n - 1], pct = Math.round(c / REVIEWS.length * 100);
+      return `<div class="b"><span class="muted">${n} star</span><div class="track"><div class="fill" style="width:${pct}%"></div></div><span class="mono dim">${pct}%</span></div>`;
+    }).join('')}
+    <div class="row" style="margin-top:8px;flex-wrap:wrap">
+      <span class="chip good">${I.shield}Booking-verified only</span>
+      <span class="chip">Median response time 4h</span>
+      <span class="chip">92% of reviews answered</span></div></div>
+  </div>`;
+}
+function viewReviews(){
+  const list = state.revFilter ? REVIEWS.filter(r => r.r === state.revFilter) : REVIEWS;
+  return `<div class="wrap"><section class="sec">
+    <div class="sec-h"><div><span class="eyebrow">Post-travel feedback</span><h2>Reviews &amp; ratings</h2>
+      <p>A review can only be submitted against a flown booking reference, and the agency reply is published in the same thread.</p></div></div>
+    <div class="panel"><div class="panel-b">${reviewSummary()}</div></div>
+    <div class="sortbar" style="margin:16px 0 0">
+      <span class="eyebrow">Filter</span>
+      <button class="pill" data-act="revF" data-v="0" aria-pressed="${state.revFilter === 0}">All</button>
+      ${[5,4,3].map(n => `<button class="pill" data-act="revF" data-v="${n}" aria-pressed="${state.revFilter === n}">${n} star</button>`).join('')}
+      <span class="dim" style="margin-left:auto;font-size:12px">${list.length} shown</span></div>
+    <div class="panel" style="margin-top:12px"><div class="panel-b">
+      ${list.length ? list.map(r => `
+        <article class="review">
+          <div class="rv-h"><span class="rv-av" style="background:${r.av}">${r.n.split(' ').map(w => w[0]).join('')}</span>
+            <div class="grow"><b style="font-size:13.5px">${esc(r.n)}</b>
+              <div class="dim" style="font-size:11.5px">${esc(r.sub)} \u00b7 ${r.d}</div></div>
+            ${stars(r.r)}</div>
+          <p style="font-size:13.5px;max-width:74ch">${esc(r.t)}</p>
+          <div class="row" style="flex-wrap:wrap"><span class="chip good">${I.shield}Verified \u00b7 ${r.ref}</span>
+            <span class="chip">${r.help} found this helpful</span></div>
+          ${r.reply ? `<div class="reply"><div class="row" style="margin-bottom:5px"><span class="chip acc">Wayfare Travel \u00b7 agency reply</span></div>
+            <p style="font-size:13px;max-width:74ch" class="muted">${esc(r.reply)}</p></div>` : ''}
+        </article>`).join('')
+      : `<div class="empty">No reviews at that rating yet.</div>`}
+    </div></div>
+  </section></div>`;
+}
+
+/* agent desk */
+function viewDesk(){
+  const gross = AGENT_BOOKINGS.reduce((s, b) => s + b.sell, 0);
+  const net = AGENT_BOOKINGS.reduce((s, b) => s + b.net, 0);
+  return `<div class="wrap"><section class="sec">
+    <div class="sec-h"><div><span class="eyebrow">Horizon Travels \u00b7 Brampton, ON \u00b7 agency ID WF-AG-2214 \u00b7 tier Gold</span><h2>Agent desk</h2>
+      <p>Wallet, credit line, markup rules and sub-agent activity. Every fare in the search is repriced against these rules before it is shown to your customer.</p></div>
+      <button class="btn btn-b2b btn-sm" data-act="tab" data-tab="search">New booking</button></div>
+    <div class="tiles">
+      <div class="tile lead"><span class="eyebrow">Wallet balance</span><b>${money(62500)}</b><small>Available for instant ticketing</small>
+        <div class="meter"><i style="width:61%"></i></div></div>
+      <div class="tile"><span class="eyebrow">Credit line used</span><b>${money(313800)}</b><small>of ${money(800000)} \u00b7 settles in 4 days</small>
+        <div class="meter"><i style="width:39%;background:var(--warn)"></i></div></div>
+      <div class="tile"><span class="eyebrow">Gross sales \u00b7 Sep</span><b>${money(gross)}</b><small>${AGENT_BOOKINGS.length} bookings this month</small></div>
+      <div class="tile"><span class="eyebrow">Margin earned \u00b7 Sep</span><b style="color:var(--b2b)">${money(gross - net)}</b><small>${((gross - net) / net * 100).toFixed(1)}% blended margin</small></div>
+    </div>
+    <div class="split" style="margin-top:16px;grid-template-columns:1fr 340px">
+      <div class="panel"><div class="panel-h"><h3>Recent bookings</h3><button class="btn btn-out btn-sm" data-act="tab" data-tab="bookings">Open full ledger</button></div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Reference</th><th>Customer</th><th>Item</th><th>Travel</th><th class="n">Net</th><th class="n">Sell</th><th class="n">Margin</th><th>Status</th></tr></thead>
+          <tbody>${AGENT_BOOKINGS.map(b => `<tr>
+            <td class="mono">${b.ref}</td><td>${esc(b.pax)}</td>
+            <td><div>${esc(b.item)}</div><span class="chip src">${b.sup}</span></td>
+            <td class="mono">${b.dt}</td>
+            <td class="n mono">${money(b.net)}</td><td class="n mono">${money(b.sell)}</td>
+            <td class="n mono" style="color:var(--b2b);font-weight:600">${money(b.sell - b.net)}</td>
+            <td><span class="chip ${b.st === 'Ticketed' || b.st === 'Confirmed' ? 'good' : b.st === 'On hold' ? 'warn' : ''}">${b.st}</span></td>
+          </tr>`).join('')}</tbody>
+        </table></div></div>
+      <div class="stack">
+        <div class="panel"><div class="panel-h"><h3>Sub-agents</h3><span class="chip b2b">4 active</span></div><div class="panel-b stack">
+          ${[['Coastline Holidays','Mississauga',10400,'12%'],['Meridian Tours','Caledon',6400,'9%'],['Skyway Travel Desk','Vaughan',3700,'10%'],['Nomad Corporate','Milton',14900,'6%']].map(([n, c, v, m]) => `
+            <div class="between" style="font-size:13px"><div><b>${n}</b><div class="dim" style="font-size:11.5px">${c} \u00b7 override ${m}</div></div>
+              <b class="num">${money(v)}</b></div>`).join('')}
+        </div></div>
+        <div class="panel"><div class="panel-h"><h3>Needs attention</h3></div><div class="panel-b stack">
+          <div class="row" style="align-items:flex-start"><span class="chip warn">TTL</span><div><b style="font-size:13px">WF-8840788 ticketing deadline</b><div class="dim" style="font-size:11.5px">Expires in 6h 12m \u00b7 WS 2312 \u00b7 A. Khan</div></div></div>
+          <div class="row" style="align-items:flex-start"><span class="chip bad">Payment</span><div><b style="font-size:13px">WF-8840651 part payment</b><div class="dim" style="font-size:11.5px">${money(1225)} outstanding \u00b7 due 22 Sep</div></div></div>
+          <div class="row" style="align-items:flex-start"><span class="chip">Docs</span><div><b style="font-size:13px">2 passports expiring inside 6 months</b><div class="dim" style="font-size:11.5px">Blocks UAE entry \u00b7 notify customer</div></div></div>
+        </div></div>
+      </div>
+    </div>
+  </section></div>`;
+}
+function viewBookings(){
+  return `<div class="wrap"><section class="sec">
+    <div class="sec-h"><div><span class="eyebrow">Ledger</span><h2>Bookings</h2><p>Net, sell and margin on every transaction, reconciled against supplier invoices and gateway settlements.</p></div>
+      <div class="row"><button class="btn btn-out btn-sm" data-act="toastOnly" data-msg="Ledger exported to CSV \u00b7 5 rows">Export CSV</button>
+      <button class="btn btn-out btn-sm" data-act="toastOnly" data-msg="Settlement report queued for 22 Sep cycle">Settlement report</button></div></div>
+    <div class="panel"><div class="tbl-wrap"><table>
+      <thead><tr><th>Reference</th><th>Customer</th><th>Item</th><th>Supplier</th><th>Travel</th><th class="n">Net</th><th class="n">Sell</th><th class="n">Margin</th><th class="n">Margin %</th><th>Status</th></tr></thead>
+      <tbody>${AGENT_BOOKINGS.map(b => `<tr>
+        <td class="mono">${b.ref}</td><td>${esc(b.pax)}</td><td>${esc(b.item)}</td><td><span class="chip src">${b.sup}</span></td>
+        <td class="mono">${b.dt}</td><td class="n mono">${money(b.net)}</td><td class="n mono">${money(b.sell)}</td>
+        <td class="n mono" style="color:var(--b2b);font-weight:600">${money(b.sell - b.net)}</td>
+        <td class="n mono">${((b.sell - b.net) / b.net * 100).toFixed(1)}%</td>
+        <td><span class="chip ${b.st === 'Ticketed' || b.st === 'Confirmed' ? 'good' : b.st === 'On hold' ? 'warn' : ''}">${b.st}</span></td>
+      </tr>`).join('')}</tbody>
+    </table></div></div>
+  </section></div>`;
+}
+function viewMarkup(){
+  return `<div class="wrap"><section class="sec">
+    <div class="sec-h"><div><span class="eyebrow">Pricing engine</span><h2>Markup rules</h2>
+      <p>Rules are evaluated top down at search time. The first matching rule wins, so order the narrow ones above the catch-alls.</p></div>
+      <button class="btn btn-b2b btn-sm" data-act="toastOnly" data-msg="Rule builder opens here in the production build">Add rule</button></div>
+    ${markupBar('Session override \u00b7 the rules below apply when this is left at default')}
+    <div class="panel"><div class="tbl-wrap"><table>
+      <thead><tr><th>#</th><th>Supply source</th><th>Applies to</th><th>Markup</th><th>Commission</th><th>Status</th><th></th></tr></thead>
+      <tbody>${MARKUP_RULES.map((r, i) => `<tr>
+        <td class="mono dim">${pad(i + 1, 2)}</td><td><span class="chip src">${r.sup}</span></td><td>${esc(r.scope)}</td>
+        <td class="mono"><b>${r.type === 'pct' ? r.v + '%' : money(r.v)}</b></td>
+        <td class="mono dim">${esc(r.comm)}</td>
+        <td><span class="chip ${r.active ? 'good' : ''}">${r.active ? 'Active' : 'Paused'}</span></td>
+        <td class="n"><button class="btn btn-out btn-sm" data-act="toastOnly" data-msg="Rule ${pad(i + 1, 2)} editor \u00b7 ${esc(r.sup)}">Edit</button></td>
+      </tr>`).join('')}</tbody>
+    </table></div></div>
+    <p class="dim" style="font-size:12px;margin-top:12px">Sub-agent overrides stack on top of these rules and are capped at the tier ceiling (Gold: 15%). Fare-family level rules can override the sector rule for premium cabins.</p>
+  </section></div>`;
+}
+
+/* operations */
+function spark(vals, color){
+  const max = Math.max(...vals, 1), min = Math.min(...vals);
+  const w = 92, h = 22, pad = 2;
+  const pts = vals.map((v, i) => {
+    const x = pad + i * (w - pad * 2) / (vals.length - 1);
+    const y = h - pad - (max === min ? h / 2 : ((v - min) / (max - min)) * (h - pad * 2));
+    return [x, y];
+  });
+  const d = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+  const area = d + ` L${pts[pts.length - 1][0].toFixed(1)} ${h} L${pts[0][0].toFixed(1)} ${h} Z`;
+  const last = pts[pts.length - 1];
+  /* use color here, var() doesn't work in svg attrs */
+  return `<svg class="spark" viewBox="0 0 ${w} ${h + 4}" style="color:${color}" aria-hidden="true">
+    <path d="${area}" fill="currentColor" opacity=".13"/>
+    <path d="${d}" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="${last[0].toFixed(1)}" cy="${last[1].toFixed(1)}" r="2.2" fill="currentColor"/>
+  </svg>`;
+}
+function viewOps(){
+  const live = APIS.filter(a => a.st === 'live').length;
+  return `<div class="wrap"><section class="sec">
+    <div class="sec-h"><div><span class="eyebrow">Integration layer \u00b7 last 60 minutes</span><h2>Connected services</h2>
+      <p>Every outbound call runs through one adapter interface, so a supplier can be added, throttled or failed over without touching the booking flow.</p></div>
+      <button class="btn btn-out btn-sm" data-act="toastOnly" data-msg="Health check re-run across 9 adapters">Re-run health check</button></div>
+    <div class="tiles" style="margin-bottom:16px">
+      <div class="tile"><span class="eyebrow">Adapters live</span><b>${live} / ${APIS.length}</b><small>1 degraded \u00b7 1 not configured</small></div>
+      <div class="tile"><span class="eyebrow">Searches today</span><b>18,402</b><small>Cache hit rate 61%</small></div>
+      <div class="tile"><span class="eyebrow">Look-to-book</span><b>212:1</b><small>87 bookings created today</small></div>
+      <div class="tile"><span class="eyebrow">Failed webhooks</span><b style="color:var(--warn)">3</b><small>All retried and cleared</small></div>
+    </div>
+    <div class="panel"><div class="panel-h"><h3>Adapter status</h3><span class="chip src">p95 response time</span></div>
+      ${APIS.map(a => `<div class="api">
+        <div class="api-n"><b>${esc(a.n)}</b><small>${esc(a.k)}</small></div>
+        ${a.st === 'off' ? '<span class="spark"></span>' : spark(a.s, a.st === 'degraded' ? 'var(--warn)' : 'var(--good)')}
+        <div style="text-align:right;min-width:118px">
+          <span class="chip ${a.st === 'live' ? 'good' : a.st === 'degraded' ? 'warn' : ''}"><span class="dot"></span>${a.st === 'live' ? 'Live' : a.st === 'degraded' ? 'Degraded' : 'Not configured'}</span>
+          <div class="mono dim" style="font-size:11px;margin-top:4px">${a.ms ? a.ms + ' ms \u00b7 ' + a.up : 'credentials pending'}</div></div>
+      </div>`).join('')}</div>
+    <p class="dim" style="font-size:12px;margin-top:12px">Hotelbeds is degraded - the adapter has tripped its circuit breaker and is serving cached availability with a 15-minute TTL. Bookings still confirm against live rates before payment is taken.</p>
+  </section></div>` + viewCRM() + viewEvents();
+}
+function viewCRM(){
+  const tot = PIPE.reduce((s, p) => s + p.n, 0);
+  return `<div class="wrap"><section class="sec">
+    <div class="sec-h"><div><span class="eyebrow">Zoho CRM \u00b7 two-way sync every 90 seconds</span><h2>Customer pipeline</h2>
+      <p>Enquiries from the website, WhatsApp and phone land as CRM leads with source attribution. Booking events move the deal stage automatically.</p></div>
+      <button class="btn btn-out btn-sm" data-act="toastOnly" data-msg="Sync triggered \u00b7 136 records reconciled with Zoho">Force sync</button></div>
+    <div class="panel"><div class="panel-h"><h3>This week \u00b7 ${tot} records</h3><span class="chip good"><span class="dot"></span>Last sync 41s ago</span></div>
+      <div class="panel-b"><div class="pipe">${PIPE.map((p, i) => `
+        <div class="stage"><span class="eyebrow">${i + 1}. ${esc(p.st)}</span><b>${p.n}</b>
+          <div class="who">${p.who.map(w => `<span><span class="dot" style="color:var(--accent)"></span>${esc(w)}</span>`).join('')}</div></div>`).join('')}</div>
+        <div class="row" style="margin-top:14px;flex-wrap:wrap">
+          <span class="chip">Enquiry \u2192 quote median 22 min</span>
+          <span class="chip">Quote \u2192 booking conversion 24%</span>
+          <span class="chip good">Auto-quote covers 61% of enquiries</span></div>
+      </div></div>
+    <div class="split" style="margin-top:16px;grid-template-columns:1fr 1fr">
+      <div class="panel"><div class="panel-h"><h3>Field mapping</h3><span class="chip src">Wayfare \u2192 Zoho</span></div>
+        <div class="tbl-wrap"><table><thead><tr><th>Platform field</th><th>CRM field</th><th>Direction</th></tr></thead><tbody>
+          ${[['booking.reference','Deal_Name','\u2192'],['traveller.email','Contact.Email','\u2194'],['booking.total','Amount','\u2192'],['booking.status','Stage','\u2192'],['enquiry.source','Lead_Source','\u2192'],['agent.id','Owner','\u2194'],['crm.note','booking.note','\u2190']].map(([a, b, d]) =>
+            `<tr><td class="mono">${a}</td><td class="mono">${b}</td><td class="mono" style="color:var(--accent)">${d}</td></tr>`).join('')}
+        </tbody></table></div></div>
+      <div class="panel"><div class="panel-h"><h3>Automations</h3></div><div class="panel-b stack">
+        ${[['Abandoned checkout','Fare held but unpaid after 30 min \u2192 WhatsApp nudge + CRM task','Active'],
+           ['Post-travel review','48h after return sector flies \u2192 review request email','Active'],
+           ['Passport expiry','Travel inside 6 months of expiry \u2192 block + agent alert','Active'],
+           ['Repeat traveller','3rd booking \u2192 move to Loyalty segment, 5% voucher','Active'],
+           ['Price drop watch','Watched route drops 8% \u2192 notify lead','Paused']].map(([n, d, s]) => `
+          <div class="between" style="align-items:flex-start;gap:12px"><div><b style="font-size:13px">${n}</b><div class="dim" style="font-size:11.5px;max-width:42ch">${d}</div></div>
+            <span class="chip ${s === 'Active' ? 'good' : ''}">${s}</span></div>`).join('')}
+      </div></div>
+    </div>
+  </section></div>`;
+}
+function viewEvents(){
+  return `<div class="wrap"><section class="sec">
+    <div class="sec-h"><div><span class="eyebrow">Structured event stream</span><h2>Event log</h2>
+      <p>Every supplier call, payment webhook and CRM push is logged with a correlation ID so a single booking can be traced end to end.</p></div>
+      <div class="row"><span class="chip good"><span class="dot"></span>Streaming</span>
+      <button class="btn btn-out btn-sm" data-act="toastOnly" data-msg="Log filtered to correlation ID cid_8841027">Trace a booking</button></div></div>
+    <div class="panel"><div class="panel-b">
+      <div class="log">${LOGLINES.map(([t, k, ev, d]) =>
+        `<span class="t">${t}</span>  <span class="${k}">${k === 'ok' ? '\u25cf' : k === 'wr' ? '\u25b2' : '\u2715'}</span>  <b>${ev}</b>  ${d}`).join('\n')}</div>
+      <div class="row" style="margin-top:12px;flex-wrap:wrap">
+        <span class="chip good">10 succeeded</span><span class="chip warn">1 retried</span><span class="chip bad">1 failed</span>
+        <span class="chip src">retention 90 days</span></div>
+    </div></div>
+  </section></div>`;
+}
+
+/* mobile app */
+function phoneTabs(active){
+  const items = [['Search', I.search], ['Trips', I.ticket], ['Saved', I.heart], ['Account', I.user]];
+  return `<div class="ptab">${items.map(([l, ic], i) => `<div class="${i === active ? 'on' : ''}">${ic}<span>${l}</span></div>`).join('')}</div>`;
+}
+function phone(cap, active, body){
+  return `<div><div class="phone"><div class="screen"><div class="notch"></div>
+    <div class="statusbar"><span>09:41</span><span>5G \u25ae\u25ae\u25ae 86%</span></div>
+    <div class="pbody">${body}</div>${phoneTabs(active)}</div></div>
+    <div class="phone-cap">${cap}</div></div>`;
+}
+function viewMobile(){
+  const o = state.results[0] || null;
+  const screenSearch = `
+    <div><div class="eyebrow">Good morning, Navdeep</div><h3 style="font-size:19px;letter-spacing:-.025em;margin-top:2px">Where to next?</h3></div>
+    <div class="panel" style="box-shadow:none"><div class="panel-b" style="padding:11px;display:flex;flex-direction:column;gap:8px">
+      <div class="row" style="gap:6px"><span class="chip acc">Flights</span><span class="chip">Hotels</span><span class="chip">Packages</span></div>
+      <div class="field" style="padding:6px 9px"><label>From</label><div style="font-weight:600;font-size:14px">Toronto (YYZ)</div></div>
+      <div class="field" style="padding:6px 9px"><label>To</label><div style="font-weight:600;font-size:14px">London (LHR)</div></div>
+      <div class="row" style="gap:6px"><div class="field grow" style="padding:6px 9px"><label>Depart</label><div style="font-weight:600;font-size:13px">Tue 14 Oct</div></div>
+        <div class="field grow" style="padding:6px 9px"><label>Pax</label><div style="font-weight:600;font-size:13px">1 adult</div></div></div>
+      <button class="btn btn-pri btn-sm" style="width:100%">Search 4 sources</button>
+    </div></div>
+    <div><span class="eyebrow">Price alerts</span>
+      <div class="panel" style="box-shadow:none;margin-top:6px"><div class="panel-b" style="padding:10px">
+        <div class="between"><div><b style="font-size:12.5px">YYZ \u2192 CUN</b><div class="dim" style="font-size:10.5px">Watching since 2 Sep</div></div>
+          <span class="chip good">\u2193 11%</span></div></div></div></div>`;
+  const screenResults = `
+    <div class="between"><div><b style="font-size:13px">YYZ \u2192 LHR</b><div class="dim" style="font-size:10.5px">Tue 14 Oct \u00b7 1 adult</div></div><span class="chip">Filter</span></div>
+    ${(state.results.length ? state.results : []).slice(0, 3).map(f => `
+      <div class="panel" style="box-shadow:none"><div class="panel-b" style="padding:11px">
+        <div class="row" style="margin-bottom:8px"><span class="al-mark" style="background:${f.al.bg};width:24px;height:24px;font-size:9.5px">${f.al.code}</span>
+          <span style="font-size:11.5px;font-weight:600" class="grow">${esc(f.al.name)}</span><span class="chip src">${f.sup}</span></div>
+        <div class="route" style="gap:8px">
+          <div class="tpoint"><b style="font-size:15px">${hhmm(f.dep)}</b><span style="font-size:9px">YYZ</span></div>
+          <div class="line"><div class="dur" style="font-size:9.5px">${dur(f.mins)}</div><div class="bar">${f.stops ? '<span class="stop"></span>' : ''}</div>
+            <div class="stops" style="font-size:8.5px">${f.stops ? f.via : 'Non-stop'}</div></div>
+          <div class="tpoint r"><b style="font-size:15px">${hhmm(f.arr)}</b><span style="font-size:9px">LHR</span></div></div>
+        <div class="between" style="margin-top:9px;border-top:1px solid var(--line);padding-top:8px">
+          <span class="dim" style="font-size:10px">${f.seats <= 4 ? f.seats + ' seats left' : 'Saver fare'}</span>
+          <b style="font-family:var(--disp);font-size:15px;letter-spacing:-.02em">${money(f.net)}</b></div>
+      </div></div>`).join('')}`;
+  const screenPass = `
+    <div><span class="eyebrow">Boarding pass</span><h3 style="font-size:17px;letter-spacing:-.02em">Toronto \u2192 London</h3></div>
+    <div class="ticket" style="box-shadow:none">
+      <div class="ticket-top" style="padding:13px"><div><span class="eyebrow" style="color:var(--band-dim)">PNR</span>
+        <div class="pnr" style="font-size:19px">JHK4TQ</div></div>
+        <div style="text-align:right"><span class="eyebrow" style="color:var(--band-dim)">Gate</span><div style="font-family:var(--disp);font-size:19px;font-weight:700">A12</div></div></div>
+      <div class="perf" style="height:14px"></div>
+      <div style="padding:13px">
+        <div class="route" style="gap:8px;margin-bottom:11px">
+          <div class="tpoint"><b style="font-size:17px">21:20</b><span style="font-size:9px">YYZ T1</span></div>
+          <div class="line"><div class="dur" style="font-size:9.5px">7h 10m</div><div class="bar"></div><div class="stops ns" style="font-size:8.5px">AC 856</div></div>
+          <div class="tpoint r"><b style="font-size:17px">09:30<sup>+1</sup></b><span style="font-size:9px">LHR T2</span></div></div>
+        <div class="between" style="font-size:11px"><div><div class="dim" style="font-size:9px">SEAT</div><b class="mono">14A</b></div>
+          <div><div class="dim" style="font-size:9px">ZONE</div><b class="mono">2</b></div>
+          <div><div class="dim" style="font-size:9px">BOARDS</div><b class="mono">03:45</b></div>
+          <div><div class="dim" style="font-size:9px">BAG</div><b class="mono">23 kg</b></div></div>
+        <div style="margin-top:11px">${barcode('JHK4TQ')}</div>
+      </div></div>
+    <div class="row" style="gap:6px"><span class="chip good">Added to Wallet</span><span class="chip">Offline ready</span></div>`;
+  return `<div class="wrap"><section class="sec">
+    <div class="sec-h"><div><span class="eyebrow">React Native \u00b7 one codebase, iOS + Android</span><h2>Mobile app</h2>
+      <p>The app runs against the same booking API as the website, so fares, markup rules and CRM events stay identical across channels. Boarding passes are cached for offline access and pushed to Apple Wallet and Google Wallet.</p></div></div>
+    <div class="panel"><div class="panel-b">
+      <div class="phones">
+        ${phone('Search \u00b7 4 sources', 0, screenSearch)}
+        ${phone('Results \u00b7 live fares', 0, screenResults)}
+        ${phone('Trips \u00b7 offline pass', 1, screenPass)}
+      </div>
+      <div class="row" style="justify-content:center;flex-wrap:wrap;margin-top:20px">
+        <span class="chip">Push price alerts</span><span class="chip">Biometric login</span><span class="chip">Offline boarding pass</span>
+        <span class="chip">Apple / Google Wallet</span><span class="chip">In-app Apple Pay</span><span class="chip">Deep-link from WhatsApp</span></div>
+    </div></div>
+  </section></div>`;
+}
+
+
+/* admin panel */
+const MONTHS = ['Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep'];
+const REVENUE = [84200,96500,132400,71800,68900,88300,102600,118400,141200,168900,152300,127800];
+const CHANNELS = [
+  {n:'Website',            v:412800, b:284},
+  {n:'Mobile app',         v:268400, b:196},
+  {n:'Agent desk \u00b7 B2B',   v:486200, b:171},
+  {n:'Walk-in \u00b7 Brampton', v:186900, b:98}
+];
+const ADMIN_BOOKINGS = [
+  {ref:'WF-8841027', cust:'Navdeep Singh',   item:'YYZ \u2192 LHR \u00b7 AC 856',      dep:'14 Oct', ch:'Website',   gross:896,  st:'Ticketed',  pay:'Paid'},
+  {ref:'WF-8841002', cust:'M. Oyelaran',     item:'Dubai Desert & Skyline',  dep:'19 Oct', ch:'Agent desk',gross:1836, st:'Confirmed', pay:'Paid'},
+  {ref:'WF-8840974', cust:'L. Bertrand',     item:'YYZ \u2192 CDG \u00b7 AF 349',      dep:'22 Oct', ch:'Mobile app',gross:742,  st:'Ticketed',  pay:'Paid'},
+  {ref:'WF-8840912', cust:'S. Okafor +1',    item:'Meridian Creek \u00b7 4N',     dep:'19 Oct', ch:'Agent desk',gross:750,  st:'Confirmed', pay:'Paid'},
+  {ref:'WF-8840889', cust:'R. Dhaliwal +3',  item:'Thailand Island Hopper',  dep:'11 Nov', ch:'Walk-in',   gross:1636, st:'On hold',   pay:'Part paid'},
+  {ref:'WF-8840851', cust:'J. Whitfield',    item:'YYZ \u2192 JFK \u00b7 AC 712',      dep:'03 Nov', ch:'Website',   gross:264,  st:'Ticketed',  pay:'Paid'},
+  {ref:'WF-8840788', cust:'A. Khan',         item:'YYZ \u2192 CUN \u00b7 WS 2312',     dep:'02 Nov', ch:'Agent desk',gross:312,  st:'On hold',   pay:'Unpaid'},
+  {ref:'WF-8840742', cust:'P. Nakamura',     item:'YVR \u2192 NRT \u00b7 AC 003',      dep:'08 Nov', ch:'Mobile app',gross:918,  st:'Ticketed',  pay:'Paid'},
+  {ref:'WF-8840698', cust:'C. Mensah +2',    item:'Singapore City Break',    dep:'27 Nov', ch:'Website',   gross:975,  st:'Confirmed', pay:'Paid'},
+  {ref:'WF-8840651', cust:'D. Fernandes +5', item:'Swiss Alps Rail Journey', dep:'04 Dec', ch:'Agent desk',gross:8745, st:'Part paid', pay:'Part paid'},
+  {ref:'WF-8840604', cust:'H. Aluko',        item:'YYZ \u2192 LHR \u00b7 BA 100',      dep:'12 Dec', ch:'Website',   gross:688,  st:'Cancelled', pay:'Refunded'},
+  {ref:'WF-8840502', cust:'N. Gupta +2',     item:'JFK \u2192 LHR \u00b7 BA 178',      dep:'28 Nov', ch:'Mobile app',gross:1929, st:'Ticketed',  pay:'Paid'}
+];
+const CUSTOMERS = [
+  {n:'Navdeep Singh',  em:'navdeep.singh@example.com', city:'Brampton',    trips:6, ltv:8420, last:'14 Oct 2026', seg:'Loyalty'},
+  {n:'D. Fernandes',   em:'d.fernandes@example.com',   city:'Mississauga', trips:4, ltv:14260,last:'04 Dec 2026', seg:'High value'},
+  {n:'M. Oyelaran',    em:'m.oyelaran@example.com',    city:'Brampton',    trips:3, ltv:5180, last:'19 Oct 2026', seg:'Loyalty'},
+  {n:'L. Bertrand',    em:'l.bertrand@example.com',    city:'Caledon',     trips:2, ltv:2140, last:'22 Oct 2026', seg:'Returning'},
+  {n:'A. Khan',        em:'a.khan@example.com',        city:'Brampton',    trips:1, ltv:312,  last:'02 Nov 2026', seg:'New'},
+  {n:'C. Mensah',      em:'c.mensah@example.com',      city:'Vaughan',     trips:2, ltv:1890, last:'27 Nov 2026', seg:'Returning'},
+  {n:'P. Nakamura',    em:'p.nakamura@example.com',    city:'Milton',      trips:5, ltv:9640, last:'08 Nov 2026', seg:'High value'}
+];
+const SUBAGENTS = [
+  {n:'Coastline Holidays',  city:'Mississauga', ytd:10400, mk:'12%', credit:12000, used:4200,  st:'Active'},
+  {n:'Meridian Tours',      city:'Caledon',     ytd:6400,  mk:'9%',  credit:8000,  used:1150,  st:'Active'},
+  {n:'Skyway Travel Desk',  city:'Vaughan',     ytd:3700,  mk:'10%', credit:5000,  used:4850,  st:'Near limit'},
+  {n:'Nomad Corporate',     city:'Milton',      ytd:14900, mk:'6%',  credit:25000, used:9300,  st:'Active'},
+  {n:'Peel Journeys',       city:'Brampton',    ytd:0,     mk:'-',   credit:0,     used:0,     st:'Pending approval'}
+];
+const REFUNDS = [
+  {ref:'WF-8840604', cust:'H. Aluko',    amt:688, reason:'Carrier cancelled BA 100', gw:'Stripe',  age:'2 d', st:'Awaiting approval'},
+  {ref:'WF-8840318', cust:'T. Grewal',   amt:214, reason:'Customer cancel \u00b7 Flex fare', gw:'Moneris', age:'4 d', st:'Awaiting approval'},
+  {ref:'WF-8840107', cust:'S. Bianchi',  amt:1120,reason:'Hotel overbooked \u00b7 supplier', gw:'Stripe',  age:'6 d', st:'Approved \u00b7 processing'}
+];
+const SETTLE = [
+  {gw:'Stripe',  gross:284600, fee:8254, net:276346, date:'22 Sep', st:'Scheduled'},
+  {gw:'Moneris', gross:196400, fee:4713, net:191687, date:'22 Sep', st:'Scheduled'},
+  {gw:'PayPal',  gross:41800,  fee:1421, net:40379,  date:'19 Sep', st:'Settled'},
+  {gw:'Agent wallet', gross:486200, fee:0, net:486200, date:'25 Sep', st:'On cycle'}
+];
+const PERMS = ['Dashboard','Bookings','Refunds','Customers','Agents','Packages','Payments','Settings'];
+const ROLES = {
+  'Owner':    [1,1,1,1,1,1,1,1],
+  'Manager':  [1,1,1,1,1,1,1,0],
+  'Counter staff':[1,1,0,1,0,0,0,0],
+  'Accounts': [1,1,1,0,0,0,1,0],
+  'Support':  [1,1,0,1,0,0,0,0]
+};
+const STAFF = [
+  {n:'Amrita Kaur',   role:'Owner',        em:'amrita@wayfare.example',  last:'2 min ago'},
+  {n:'Jason Mehta',   role:'Manager',      em:'jason@wayfare.example',   last:'18 min ago'},
+  {n:'Fatima Noor',   role:'Counter staff',em:'fatima@wayfare.example',  last:'1 h ago'},
+  {n:'Greg Lalonde',  role:'Accounts',     em:'greg@wayfare.example',    last:'Yesterday'},
+  {n:'Priya Raman',   role:'Support',      em:'priya@wayfare.example',   last:'3 d ago'}
+];
+
+/* chart helpers */
+function shortMoney(v){
+  const c = RATES[state.cur], n = v * c.r;
+  return c.sym + (n >= 1000 ? Math.round(n/1000) + 'k' : Math.round(n));
+}
+function barChart(vals, labels){
+  const W = 760, H = 212, padL = 50, padR = 6, padT = 16, padB = 26;
+  const peak = Math.max(...vals);
+  const max = Math.ceil(peak / 25000) * 25000 || 1;
+  const iw = W - padL - padR, ih = H - padT - padB;
+  const slot = iw / vals.length, bw = Math.max(6, slot - 8);
+  const hi = vals.indexOf(peak);
+  let out = '';
+  for(let i = 0; i <= 4; i++){
+    const y = padT + ih - (ih * i / 4);
+    out += `<line class="gl" x1="${padL}" y1="${y.toFixed(1)}" x2="${W - padR}" y2="${y.toFixed(1)}"/>`
+         + `<text class="ax" x="${padL - 8}" y="${(y + 3.4).toFixed(1)}" text-anchor="end">${shortMoney(max * i / 4)}</text>`;
+  }
+  vals.forEach((v, i) => {
+    const h = ih * v / max;
+    const x = padL + i * slot + (slot - bw) / 2;
+    const y = padT + ih - h;
+    const r = Math.min(4, bw / 2, h);
+    const d = `M${x.toFixed(1)},${(y + r).toFixed(1)} q0,${-r} ${r},${-r} h${(bw - 2 * r).toFixed(1)} q${r},0 ${r},${r} v${(h - r).toFixed(1)} h${(-bw).toFixed(1)} z`;
+    out += `<g class="bar"><title>${labels[i]} \u00b7 ${money(v)}</title>`
+         + `<path d="${d}"/>`
+         + `<text class="vl${i === hi ? ' on' : ''}" x="${(x + bw / 2).toFixed(1)}" y="${(y - 6).toFixed(1)}" text-anchor="middle">${shortMoney(v)}</text></g>`
+         + `<text class="ax" x="${(x + bw / 2).toFixed(1)}" y="${H - 7}" text-anchor="middle">${labels[i]}</text>`;
+  });
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Gross bookings by month, last 12 months. Peak ${labels[hi]} at ${money(peak)}.">${out}</svg>`;
+}
+
+/* dashboard */
+function viewDash(){
+  const gross = CHANNELS.reduce((s, c) => s + c.v, 0);
+  const bookings = CHANNELS.reduce((s, c) => s + c.b, 0);
+  const cmax = Math.max(...CHANNELS.map(c => c.v));
+  return `<div class="wrap"><section class="sec">
+    <div class="sec-h"><div><span class="eyebrow">Wayfare Travel \u00b7 Brampton, ON \u00b7 fiscal year to date</span><h2>Dashboard</h2>
+      <p>Everything the front desk and the owner look at each morning - sales, what needs a decision today, and where the money came from.</p></div>
+      <button class="btn btn-out btn-sm" data-act="toastOnly" data-msg="Report exported \u00b7 12 months, all channels">Export report</button></div>
+    <div class="tiles">
+      <div class="tile"><span class="eyebrow">Gross bookings</span><b>${money(gross)}</b><small>${bookings} bookings \u00b7 12 months</small></div>
+      <div class="tile"><span class="eyebrow">Net margin</span><b style="color:var(--b2b)">${money(Math.round(gross * 0.114))}</b><small>11.4% blended</small></div>
+      <div class="tile"><span class="eyebrow">Average booking</span><b>${money(Math.round(gross / bookings))}</b><small>Up 8% year on year</small></div>
+      <div class="tile"><span class="eyebrow">Refund rate</span><b>2.1%</b><small>${REFUNDS.length} awaiting a decision</small></div>
+    </div>
+    <div class="split" style="margin-top:16px;grid-template-columns:1fr 340px">
+      <div class="panel"><div class="panel-h"><h3>Gross bookings by month</h3><span class="chip src">${state.cur} \u00b7 hover a bar</span></div>
+        <div class="panel-b"><div class="chart-wrap">${barChart(REVENUE, MONTHS)}</div>
+          <p class="dim" style="font-size:11.5px;margin-top:10px">July peaks on summer long-haul; January is the post-holiday trough. Both are normal for a GTA retail agency.</p></div></div>
+      <div class="stack">
+        <div class="panel"><div class="panel-h"><h3>Needs a decision</h3><span class="chip warn">${REFUNDS.length + 2}</span></div><div class="panel-b stack">
+          <div class="row" style="align-items:flex-start"><span class="chip bad">Refund</span><div><b style="font-size:13px">${REFUNDS.length} refunds awaiting approval</b><div class="dim" style="font-size:11.5px">Oldest is 6 days \u00b7 ${money(REFUNDS.reduce((s, r) => s + r.amt, 0))} total</div></div></div>
+          <div class="row" style="align-items:flex-start"><span class="chip warn">Agent</span><div><b style="font-size:13px">Peel Journeys awaiting approval</b><div class="dim" style="font-size:11.5px">Sub-agent application \u00b7 submitted 2 days ago</div></div></div>
+          <div class="row" style="align-items:flex-start"><span class="chip warn">Credit</span><div><b style="font-size:13px">Skyway Travel Desk near limit</b><div class="dim" style="font-size:11.5px">${money(4850)} of ${money(5000)} used</div></div></div>
+        </div></div>
+        <div class="panel"><div class="panel-h"><h3>Where it came from</h3></div><div class="panel-b">
+          <div class="chan">${CHANNELS.map(c => `
+            <div class="crow"><span class="cn">${esc(c.n)}</span>
+              <div class="ct"><i style="width:${Math.round(c.v / cmax * 100)}%"></i></div>
+              <b class="num">${money(c.v)}</b><span class="cb num">${c.b}</span></div>`).join('')}</div>
+          <div class="between" style="margin-top:10px;font-size:11px"><span class="dim">Revenue</span><span class="dim">Bookings</span></div>
+        </div></div>
+      </div>
+    </div>
+  </section></div>`;
+}
+
+/* bookings */
+function viewABook(){
+  const f = state.abFilter || 'All';
+  const list = f === 'All' ? ADMIN_BOOKINGS : ADMIN_BOOKINGS.filter(b => b.st === f);
+  const states = ['All','Ticketed','Confirmed','On hold','Part paid','Cancelled'];
+  return `<div class="wrap"><section class="sec">
+    <div class="sec-h"><div><span class="eyebrow">Back office</span><h2>Bookings</h2>
+      <p>Every booking across web, app, agent desk and walk-in, in one ledger. Staff actions are permission-gated - only Owner, Manager and Accounts can issue a refund.</p></div>
+      <div class="row"><button class="btn btn-out btn-sm" data-act="toastOnly" data-msg="Ledger exported \u00b7 ${ADMIN_BOOKINGS.length} rows to CSV">Export</button>
+      <button class="btn btn-pri btn-sm" data-act="tab" data-tab="search">New booking</button></div></div>
+    <div class="sortbar"><span class="eyebrow">Status</span>
+      ${states.map(v => `<button class="pill" data-act="abF" data-v="${v}" aria-pressed="${f === v}">${v}</button>`).join('')}
+      <span class="dim" style="margin-left:auto;font-size:12px">${list.length} of ${ADMIN_BOOKINGS.length}</span></div>
+    <div class="panel" style="margin-top:12px"><div class="tbl-wrap"><table>
+      <thead><tr><th>Reference</th><th>Customer</th><th>Item</th><th>Departs</th><th>Channel</th><th class="n">Gross</th><th>Status</th><th>Payment</th><th></th></tr></thead>
+      <tbody>${list.length ? list.map(b => `<tr>
+        <td class="mono">${b.ref}</td><td>${esc(b.cust)}</td><td>${esc(b.item)}</td><td class="mono">${b.dep}</td>
+        <td><span class="chip">${b.ch}</span></td><td class="n mono">${money(b.gross)}</td>
+        <td><span class="chip ${b.st === 'Ticketed' || b.st === 'Confirmed' ? 'good' : b.st === 'Cancelled' ? 'bad' : 'warn'}">${b.st}</span></td>
+        <td><span class="chip ${b.pay === 'Paid' ? 'good' : b.pay === 'Refunded' ? '' : 'warn'}">${b.pay}</span></td>
+        <td class="n"><div class="row" style="gap:5px;justify-content:flex-end">
+          <button class="btn btn-out btn-sm" data-act="toastOnly" data-msg="Opening ${b.ref} \u00b7 ${esc(b.cust)}">View</button>
+          ${b.st !== 'Cancelled' ? `<button class="btn btn-out btn-sm" data-act="toastOnly" data-msg="Refund of ${money(b.gross)} queued for approval \u00b7 ${b.ref}">Refund</button>` : ''}
+        </div></td></tr>`).join('') : '<tr><td colspan="9"><div class="empty">No bookings at that status.</div></td></tr>'}</tbody>
+    </table></div></div>
+  </section></div>`;
+}
+
+/* customers */
+function viewCust(){
+  const ltv = CUSTOMERS.reduce((s, c) => s + c.ltv, 0);
+  return `<div class="wrap"><section class="sec">
+    <div class="sec-h"><div><span class="eyebrow">Synced both ways with Zoho CRM</span><h2>Customers</h2>
+      <p>One record per traveller, merged on email across every channel. Segments drive the marketing automations on the CRM tab.</p></div>
+      <button class="btn btn-out btn-sm" data-act="toastOnly" data-msg="Segment pushed to Zoho \u00b7 7 contacts">Push segment to CRM</button></div>
+    <div class="tiles" style="margin-bottom:14px">
+      <div class="tile"><span class="eyebrow">Customers</span><b>${CUSTOMERS.length}</b><small>2 new this month</small></div>
+      <div class="tile"><span class="eyebrow">Lifetime value</span><b>${money(ltv)}</b><small>${money(Math.round(ltv / CUSTOMERS.length))} average</small></div>
+      <div class="tile"><span class="eyebrow">Repeat rate</span><b>71%</b><small>2 or more trips booked</small></div>
+      <div class="tile lead"><span class="eyebrow">Brampton customers</span><b>${CUSTOMERS.filter(c => c.city === 'Brampton').length}</b><small>Home catchment</small></div>
+    </div>
+    <div class="panel"><div class="tbl-wrap"><table>
+      <thead><tr><th>Customer</th><th>Email</th><th>City</th><th class="n">Trips</th><th class="n">Lifetime value</th><th>Last travel</th><th>Segment</th><th></th></tr></thead>
+      <tbody>${CUSTOMERS.map(c => `<tr>
+        <td><b>${esc(c.n)}</b></td><td class="mono dim">${esc(c.em)}</td><td>${esc(c.city)}</td>
+        <td class="n mono">${c.trips}</td><td class="n mono">${money(c.ltv)}</td><td class="mono">${c.last}</td>
+        <td><span class="chip ${c.seg === 'High value' ? 'b2b' : c.seg === 'Loyalty' ? 'acc' : ''}">${c.seg}</span></td>
+        <td class="n"><button class="btn btn-out btn-sm" data-act="toastOnly" data-msg="Opening CRM record for ${esc(c.n)}">Open</button></td>
+      </tr>`).join('')}</tbody>
+    </table></div></div>
+  </section></div>`;
+}
+
+/* agents */
+function viewAAgents(){
+  return `<div class="wrap"><section class="sec">
+    <div class="sec-h"><div><span class="eyebrow">B2B network</span><h2>Sub-agents</h2>
+      <p>Approve applications, set credit limits and commission overrides. A sub-agent books at your net rate plus their own markup, capped by their tier.</p></div>
+      <button class="btn btn-b2b btn-sm" data-act="toastOnly" data-msg="Invitation sent \u00b7 onboarding link valid 7 days">Invite agent</button></div>
+    <div class="panel"><div class="tbl-wrap"><table>
+      <thead><tr><th>Agency</th><th>City</th><th class="n">Sales YTD</th><th>Override</th><th class="n">Credit used</th><th>Utilisation</th><th>Status</th><th></th></tr></thead>
+      <tbody>${SUBAGENTS.map(a => {
+        const pct = a.credit ? Math.round(a.used / a.credit * 100) : 0;
+        return `<tr>
+        <td><b>${esc(a.n)}</b></td><td>${esc(a.city)}</td>
+        <td class="n mono">${a.ytd ? money(a.ytd) : '-'}</td><td class="mono">${a.mk}</td>
+        <td class="n mono">${a.credit ? money(a.used) + ' / ' + money(a.credit) : '-'}</td>
+        <td style="min-width:120px">${a.credit ? `<div class="meter" style="margin:0"><i style="width:${pct}%;background:${pct > 90 ? 'var(--bad)' : pct > 70 ? 'var(--warn)' : 'var(--b2b)'}"></i></div><span class="dim mono" style="font-size:10.5px">${pct}%</span>` : '<span class="dim">-</span>'}</td>
+        <td><span class="chip ${a.st === 'Active' ? 'good' : a.st === 'Near limit' ? 'warn' : 'acc'}">${a.st}</span></td>
+        <td class="n">${a.st === 'Pending approval'
+          ? `<div class="row" style="gap:5px;justify-content:flex-end"><button class="btn btn-b2b btn-sm" data-act="toastOnly" data-msg="${esc(a.n)} approved \u00b7 credit line ${money(5000)} opened">Approve</button><button class="btn btn-out btn-sm" data-act="toastOnly" data-msg="Application declined \u00b7 applicant notified">Decline</button></div>`
+          : `<button class="btn btn-out btn-sm" data-act="toastOnly" data-msg="Editing limits for ${esc(a.n)}">Limits</button>`}</td>
+      </tr>`; }).join('')}</tbody>
+    </table></div></div>
+  </section></div>`;
+}
+
+/* packages */
+function viewAPkg(){
+  if(!state.pkgPub) state.pkgPub = {};
+  return `<div class="wrap"><section class="sec">
+    <div class="sec-h"><div><span class="eyebrow">Inventory &amp; content</span><h2>Packages</h2>
+      <p>Add, price and publish the agency's own product. Unpublishing pulls it from the storefront and the app immediately - no redeploy.</p></div>
+      <button class="btn btn-pri btn-sm" data-act="toastOnly" data-msg="Package builder opens here - itinerary, inclusions, pricing, photos">Add package</button></div>
+    <div class="panel"><div class="tbl-wrap"><table>
+      <thead><tr><th>Package</th><th>Destination</th><th class="n">Nights</th><th class="n">From</th><th class="n">Was</th><th>Category</th><th class="n">Rating</th><th>Live</th><th></th></tr></thead>
+      <tbody>${PACKAGES.map(p => {
+        const live = state.pkgPub[p.id] !== false;
+        return `<tr>
+        <td><div class="row" style="gap:9px"><img src="${p.img}" alt="" style="width:46px;height:30px;object-fit:cover;border-radius:5px;flex:none" loading="lazy"><b>${esc(p.n)}</b></div></td>
+        <td>${esc(p.dest)}</td><td class="n mono">${p.nights}</td>
+        <td class="n mono">${money(p.from)}</td><td class="n mono dim">${money(p.was)}</td>
+        <td><span class="chip acc">${esc(p.cat)}</span></td><td class="n mono">${p.rating}</td>
+        <td><button class="pill" data-act="pubToggle" data-id="${p.id}" aria-pressed="${live}">${live ? 'Published' : 'Draft'}</button></td>
+        <td class="n"><button class="btn btn-out btn-sm" data-act="toastOnly" data-msg="Editing ${esc(p.n)} - itinerary, inclusions, photos">Edit</button></td>
+      </tr>`; }).join('')}</tbody>
+    </table></div></div>
+    <p class="dim" style="font-size:12px;margin-top:12px">Storefront shows <b>${PACKAGES.filter(p => state.pkgPub[p.id] !== false).length} of ${PACKAGES.length}</b> packages right now. Toggle one and check the Traveller tab.</p>
+  </section></div>`;
+}
+
+/* payments */
+function viewPay(){
+  const pend = REFUNDS.filter(r => r.st === 'Awaiting approval');
+  return `<div class="wrap"><section class="sec">
+    <div class="sec-h"><div><span class="eyebrow">Money in, money out</span><h2>Payments &amp; refunds</h2>
+      <p>Gateway settlements reconciled against bookings, and a refund queue that needs a human before anything leaves the account.</p></div>
+      <button class="btn btn-out btn-sm" data-act="toastOnly" data-msg="Reconciliation run \u00b7 4 gateways, 0 unmatched">Reconcile now</button></div>
+    <div class="panel" style="margin-bottom:16px"><div class="panel-h"><h3>Refund queue</h3><span class="chip ${pend.length ? 'warn' : 'good'}">${pend.length} awaiting approval</span></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Booking</th><th>Customer</th><th class="n">Amount</th><th>Reason</th><th>Gateway</th><th>Waiting</th><th>Status</th><th></th></tr></thead>
+        <tbody>${REFUNDS.map(r => `<tr>
+          <td class="mono">${r.ref}</td><td>${esc(r.cust)}</td><td class="n mono"><b>${money(r.amt)}</b></td>
+          <td>${esc(r.reason)}</td><td><span class="chip src">${r.gw}</span></td><td class="mono">${r.age}</td>
+          <td><span class="chip ${r.st === 'Awaiting approval' ? 'warn' : 'good'}">${r.st}</span></td>
+          <td class="n">${r.st === 'Awaiting approval'
+            ? `<div class="row" style="gap:5px;justify-content:flex-end"><button class="btn btn-pri btn-sm" data-act="toastOnly" data-msg="Refund of ${money(r.amt)} approved \u00b7 ${r.gw} will return it in 5-10 days">Approve</button><button class="btn btn-out btn-sm" data-act="toastOnly" data-msg="Refund declined \u00b7 note added to ${r.ref}">Decline</button></div>`
+            : '<span class="dim">In flight</span>'}</td>
+        </tr>`).join('')}</tbody>
+      </table></div></div>
+    <div class="panel"><div class="panel-h"><h3>Gateway settlements</h3><span class="chip src">Next cycle 22 Sep</span></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Gateway</th><th class="n">Gross</th><th class="n">Fees</th><th class="n">Net to bank</th><th>Settles</th><th>Status</th></tr></thead>
+        <tbody>${SETTLE.map(x => `<tr>
+          <td><b>${x.gw}</b></td><td class="n mono">${money(x.gross)}</td>
+          <td class="n mono" style="color:var(--bad)">${x.fee ? '-' + money(x.fee) : '-'}</td>
+          <td class="n mono"><b>${money(x.net)}</b></td><td class="mono">${x.date}</td>
+          <td><span class="chip ${x.st === 'Settled' ? 'good' : ''}">${x.st}</span></td>
+        </tr>`).join('')}</tbody>
+      </table></div></div>
+  </section></div>`;
+}
+
+/* settings */
+function viewSettings(){
+  return `<div class="wrap"><section class="sec">
+    <div class="sec-h"><div><span class="eyebrow">Configuration</span><h2>Settings</h2>
+      <p>Staff access, supplier credentials and the pricing defaults every search inherits.</p></div></div>
+    <div class="split" style="grid-template-columns:1fr 1fr;align-items:start">
+      <div class="stack">
+        <div class="panel"><div class="panel-h"><h3>Staff</h3><button class="btn btn-out btn-sm" data-act="toastOnly" data-msg="Invite sent \u00b7 the new user sets their own password">Invite</button></div>
+          <div class="tbl-wrap"><table><thead><tr><th>Name</th><th>Role</th><th>Last active</th><th></th></tr></thead>
+            <tbody>${STAFF.map(u => `<tr>
+              <td><b>${esc(u.n)}</b><div class="dim mono" style="font-size:10.5px">${esc(u.em)}</div></td>
+              <td><span class="chip ${u.role === 'Owner' ? 'acc' : ''}">${u.role}</span></td>
+              <td class="mono dim">${u.last}</td>
+              <td class="n"><button class="btn btn-out btn-sm" data-act="toastOnly" data-msg="Editing access for ${esc(u.n)}">Edit</button></td>
+            </tr>`).join('')}</tbody></table></div></div>
+        <div class="panel"><div class="panel-h"><h3>Pricing defaults</h3></div><div class="panel-b stack">
+          <div class="between"><span>Retail markup - air</span><b class="mono">6.0%</b></div>
+          <div class="between"><span>Retail markup - hotel</span><b class="mono">12.0%</b></div>
+          <div class="between"><span>Booking fee</span><b class="mono">${money(15)}</b></div>
+          <div class="between"><span>Display currency</span><b class="mono">${state.cur}</b></div>
+          <div class="between"><span>Fare hold window</span><b class="mono">20 min</b></div>
+        </div></div>
+      </div>
+      <div class="stack">
+        <div class="panel"><div class="panel-h"><h3>Roles &amp; permissions</h3><span class="chip src">${Object.keys(ROLES).length} roles</span></div>
+          <div class="tbl-wrap"><table><thead><tr><th>Role</th>${PERMS.map(p => `<th class="n" style="font-size:8.5px">${p}</th>`).join('')}</tr></thead>
+            <tbody>${Object.keys(ROLES).map(r => `<tr><td><b>${r}</b></td>
+              ${ROLES[r].map(v => `<td class="n">${v ? '<span style="color:var(--good);font-weight:700">\u2713</span>' : '<span class="dim">\u00b7</span>'}</td>`).join('')}
+            </tr>`).join('')}</tbody></table></div></div>
+        <div class="panel"><div class="panel-h"><h3>Supplier credentials</h3><span class="chip good">Encrypted at rest</span></div>
+          <div class="panel-b stack">
+            ${[['Amadeus','API key','\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022 4f2a'],['Travelport','Branch code','\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022  P7714'],['TBO','Agency login','\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022  WF-CA'],['Hotelbeds','API key','\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022  9c1d'],['Stripe','Secret key','sk_live_\u2022\u2022\u2022\u2022\u2022\u2022  a83e'],['Moneris','Store ID','\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022  MON42'],['Zoho CRM','OAuth token','Connected \u00b7 renews 14 Nov']].map(([n, k, v]) => `
+              <div class="between" style="font-size:13px"><div><b>${n}</b><div class="dim" style="font-size:11px">${k}</div></div>
+                <span class="mono dim" style="font-size:11.5px">${v}</span></div>`).join('')}
+            <button class="btn btn-out btn-sm" style="align-self:flex-start" data-act="toastOnly" data-msg="Credential rotation requires Owner re-authentication">Rotate credentials</button>
+          </div></div>
+      </div>
+    </div>
+  </section></div>`;
+}
+
+/* router */
+const PARENT = {flights:'search', hotels:'search', checkout:'search', confirm:'search', package:'packages'};
+const VIEWS = {
+  search:viewSearch, flights:viewFlights, hotels:viewHotels, checkout:viewCheckout, confirm:viewConfirm,
+  packages:viewPackages, package:viewPackage, reviews:viewReviews, mobile:viewMobile,
+  desk:viewDesk, bookings:viewBookings, markup:viewMarkup,
+  ops:viewOps, crm:viewCRM, events:viewEvents,
+  dash:viewDash, abook:viewABook, cust:viewCust, aagents:viewAAgents,
+  apkg:viewAPkg, pay:viewPay, settings:viewSettings
+};
+function render(keepScroll){
+  const y = window.scrollY;
+  const fn = VIEWS[state.tab] || viewSearch;
+  el('#view').innerHTML = fn();
+  const active = PARENT[state.tab] || state.tab;
+  document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', t.dataset.tab === active));
+  document.querySelectorAll('.modes button').forEach(b => b.setAttribute('aria-pressed', b.dataset.mode === state.mode));
+  if(keepScroll) window.scrollTo(0, y); else window.scrollTo({top:0, behavior:'instant'});
+}
+function go(tab){ state.tab = tab; renderTabs(); render(); }
+
+/* interaction */
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-act]');
+  if(!t) return;
+  const a = t.dataset.act;
+  switch(a){
+    case 'mode': {
+      state.mode = t.dataset.mode;
+      state.tab = TABS[state.mode][0][0];
+      state.openCard = null;
+      renderTabs(); render();
+      toast(state.mode === 'agent' ? 'Signed in as <b>Horizon Travels</b> - net rates and markup controls unlocked'
+          : state.mode === 'ops' ? 'Admin panel - bookings, refunds, customers, agents, content and settings'
+          : 'Traveller storefront - public retail pricing', state.mode === 'agent' ? 'b2b' : '');
+      break;
+    }
+    case 'tab': go(t.dataset.tab); break;
+    case 'stab': state.stab = t.dataset.stab; render(true); break;
+    case 'swap': { const f = state.trip.from; state.trip.from = state.trip.to; state.trip.to = f; render(true); break; }
+    case 'searchFlights':
+      buildOffers();
+      state.openCard = null;
+      go('flights');
+      toast('Queried <b>4 sources</b> \u00b7 ' + state.results.length + ' offers returned in 842 ms');
+      break;
+    case 'searchHotels': go('hotels'); toast('Hotelbeds + TBO \u00b7 62 properties, deduplicated to ' + HOTELS.length + ' shown'); break;
+    case 'openFares': state.openCard = state.openCard === t.dataset.id ? null : t.dataset.id; render(true); break;
+    case 'selFare': {
+      const o = state.results.find(x => x.id === t.dataset.id);
+      const f = o.fares.find(x => x.k === t.dataset.f);
+      state.sel = {kind:'air', offer:o, fare:f};
+      if(state.gw === 'wallet' && state.mode !== 'agent') state.gw = 'stripe';
+      go('checkout');
+      toast('Fare confirmed against ' + o.sup + ' \u00b7 held for 20 minutes');
+      break;
+    }
+    case 'selHotel': {
+      const h = HOTELS.find(x => x.id === t.dataset.id);
+      state.sel = {kind:'hotel', hotel:h, nights:4};
+      go('checkout');
+      toast('Rate re-checked against ' + h.sup + ' \u00b7 available');
+      break;
+    }
+    case 'gw': state.gw = t.dataset.k; render(true); break;
+    case 'back': go(state.sel && state.sel.kind === 'hotel' ? 'hotels' : 'flights'); break;
+    case 'pay': {
+      const q = quote();
+      t.disabled = true; t.textContent = 'Contacting gateway...';
+      const gwName = (GATEWAYS.find(g => g.k === state.gw) || {}).n;
+      toast(state.gw === 'wallet' ? 'Debiting agent wallet...' : gwName + ' \u00b7 3D Secure challenge passed');
+      setTimeout(() => {
+        const s = state.sel;
+        const now = new Date();
+        state.booking = {
+          kind:s.kind, o:s.offer, fare:s.fare, h:s.hotel, nights:s.nights,
+          pnr: makePNR(), ref: 'WF-88' + (40000 + Math.floor(Math.random() * 9999)),
+          etkt: s.kind === 'air' ? '176-' + pad(Math.floor(Math.random() * 1e10), 10) : 'VCH-' + pad(Math.floor(Math.random() * 1e8), 8),
+          ttl: '19 Sep 2026 23:59',
+          total: q.total, gw: gwName, sup: s.kind === 'air' ? s.offer.sup : s.hotel.sup,
+          txn: (state.gw === 'stripe' ? 'pi_' : state.gw === 'moneris' ? 'mnrs_' : state.gw === 'paypal' ? 'PAYID-' : 'wlt_') + Math.random().toString(36).slice(2, 12).toUpperCase(),
+          clock: pad(now.getHours(), 2) + ':' + pad(now.getMinutes(), 2) + ':' + pad(now.getSeconds(), 2)
+        };
+        go('confirm');
+        toast('Payment captured \u00b7 PNR <b>' + state.booking.pnr + '</b> issued \u00b7 CRM and WhatsApp fired');
+      }, 1400);
+      break;
+    }
+    case 'sort': state.sort = t.dataset.v; render(true); break;
+    case 'fStops': state.filters.stops = t.dataset.v; render(true); break;
+    case 'fDep': state.filters.dep = t.dataset.v; render(true); break;
+    case 'clearF': state.filters = {stops:'any', als:[], sups:[], maxPrice:null, dep:'any', refundOnly:false}; render(true); break;
+    case 'mkType': state.markup.type = t.dataset.t; state.markup.v = t.dataset.t === 'pct' ? 6 : 25; render(true); break;
+    case 'pkg': state.pkg = t.dataset.id; go('package'); break;
+    case 'gal': {
+      const m = el('#galMain');
+      if(m) m.src = t.dataset.src;
+      document.querySelectorAll('.gt').forEach(b => b.setAttribute('aria-pressed', b === t));
+      break;
+    }
+    case 'dest': {
+      state.trip.to = t.dataset.ap;
+      if(state.trip.from === state.trip.to) state.trip.from = 'YYZ';
+      buildOffers(); state.openCard = null; go('flights');
+      toast('Searching <b>' + AP[state.trip.from].c + ' \u2192 ' + AP[state.trip.to].c + '</b> across 4 sources');
+      break;
+    }
+    case 'pkgCat': state.pkgCat = t.dataset.v; render(true); break;
+    case 'revF': state.revFilter = +t.dataset.v; render(true); break;
+    case 'abF': state.abFilter = t.dataset.v; render(true); break;
+    case 'pubToggle': {
+      if(!state.pkgPub) state.pkgPub = {};
+      const id = t.dataset.id;
+      state.pkgPub[id] = state.pkgPub[id] === false;
+      const p = PACKAGES.find(x => x.id === id);
+      render(true);
+      toast('<b>' + esc(p.n) + '</b> is now ' + (state.pkgPub[id] === false ? 'a draft - pulled from the storefront and app' : 'published - live on the storefront and app'));
+      break;
+    }
+    case 'cur':
+      state.cur = state.cur === 'USD' ? 'CAD' : 'USD';
+      renderTabs(); render(true);
+      toast('Display currency switched to <b>' + state.cur + '</b> \u00b7 supplier settlement stays in CAD');
+      break;
+    case 'theme': {
+      const cur = document.documentElement.getAttribute('data-theme');
+      const next = cur === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      toast(next === 'dark' ? 'Dark theme' : 'Light theme');
+      break;
+    }
+    case 'toastOnly': toast(t.dataset.msg); break;
+  }
+});
+document.addEventListener('change', e => {
+  const t = e.target.closest('[data-act]');
+  if(!t) return;
+  const a = t.dataset.act;
+  if(a === 'trip'){
+    const k = t.dataset.k;
+    if(k === 'hotelCity'){ state.hotelCity = t.value; render(true); return; }
+    state.trip[k] = (k === 'adt' || k === 'chd') ? +t.value : t.value;
+    if(state.trip.from === state.trip.to){
+      const alt = Object.keys(AP).find(c => c !== state.trip.from);
+      state.trip[t.dataset.k === 'from' ? 'to' : 'from'] = alt;
+    }
+    render(true);
+  }
+  if(a === 'triptype'){ state.trip.type = t.value; render(true); }
+  if(a === 'addon'){ state.addons[t.dataset.k] = t.checked; render(true); }
+  if(a === 'fAl'){
+    const v = t.dataset.v, s = state.filters.als;
+    t.checked ? s.push(v) : s.splice(s.indexOf(v), 1);
+    render(true);
+  }
+  if(a === 'fSup'){
+    const v = t.dataset.v, s = state.filters.sups;
+    t.checked ? s.push(v) : s.splice(s.indexOf(v), 1);
+    render(true);
+  }
+});
+/* sliders: update label while dragging, render on release */
+document.addEventListener('input', e => {
+  const t = e.target.closest('[data-act]');
+  if(!t) return;
+  if(t.dataset.act === 'fPrice'){
+    state.filters.maxPrice = +t.value;
+    const out = el('#fpOut'); if(out) out.textContent = money(+t.value);
+  }
+  if(t.dataset.act === 'mkVal'){
+    state.markup.v = +t.value;
+    const out = el('#mkOut'); if(out) out.textContent = state.markup.type === 'pct' ? state.markup.v + '%' : money(state.markup.v);
+  }
+});
+document.addEventListener('change', e => {
+  const t = e.target.closest('[data-act]');
+  if(!t) return;
+  if(t.dataset.act === 'fPrice' || t.dataset.act === 'mkVal'){
+    render(true);
+    const again = document.querySelector('[data-act="' + t.dataset.act + '"]');
+    if(again) again.focus();
+  }
+});
+
+/* init */
+document.documentElement.classList.toggle('dev-on', SHOW_DEV_CONTACT);
+state.stab = 'flights';
+buildOffers();
+renderTabs();
+render();
+</script>
+
+</body>
+</html>
